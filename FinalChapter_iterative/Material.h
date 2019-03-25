@@ -17,15 +17,20 @@ __device__ bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& re
 		return false;
 }
 
-#define RANDVEC3 vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
+// Below is not used anymore. See Ingo's blog post on curand:
+// https://ingowald.blog/2018/11/21/rtow-in-optix-fun-with-curand/
 
-__device__ vec3 random_in_unit_sphere(curandState *local_rand_state) {
-	vec3 p;
-	do {
-		p = 2.0f*RANDVEC3 - vec3(1, 1, 1);
-	} while (p.squared_length() >= 1.0f);
-	return p;
-}
+/*
+ *#define RANDVEC3 vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
+ *
+ *__device__ vec3 random_in_unit_sphere(curandState *local_rand_state) {
+ *  vec3 p;
+ *  do {
+ *    p = 2.0f*RANDVEC3 - vec3(1, 1, 1);
+ *  } while (p.squared_length() >= 1.0f);
+ *  return p;
+ *}
+ */
 
 __device__ vec3 reflect(const vec3& v, const vec3& n) {
 	return v - 2.0f*dot(v, n)*n;
