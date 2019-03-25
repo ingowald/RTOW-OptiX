@@ -148,16 +148,23 @@ optix::GeometryGroup createScene()
       }
       else if (choose_mat < 0.95f) {
         d_list.push_back(createSphere(center, 0.2f,
-                                      Metal(vec3f(0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd())), 0.5f*rnd())));
+                                      //Metal(vec3f(0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd())), 0.5f*rnd())));
+                                      Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
       }
       else {
-        d_list.push_back(createSphere(center, 0.2f, Dielectric(1.5f)));
+        //d_list.push_back(createSphere(center, 0.2f, Dielectric(1.5f)));
+        d_list.push_back(createSphere(center, 0.2f,
+                                      Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
       }
     }
   }
-  d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Dielectric(1.5f)));
+  //d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Dielectric(1.5f)));
+  //d_list.push_back(createSphere(vec3f(-4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
+  //d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f)));
+
+  d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
   d_list.push_back(createSphere(vec3f(-4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
-  d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f)));
+  d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.7f, 0.6f, 0.5f))));
   
   // now, create the optix world that contains all these GIs
   optix::GeometryGroup d_world = g_context->createGeometryGroup();
