@@ -70,6 +70,38 @@ inline __device__ vec3f missColor(const optix::Ray &ray)
   return c;
 }
 
+inline __device__ vec3f color(optix::Ray &ray, DRand48 &rnd)
+{
+  PerRayData prd;
+  prd.in.randState = &rnd;
+
+  vec3f attenuation = 1.f;
+  
+  //iterative version of recursion, up to depth 50 
+  for (int depth=0;depth<50;depth++) {
+    rtTrace(world, ray, prd);
+    if (prd.out.scatterEvent == rayDidntHitAnything)
+       //ray got 'lost' to the environment - 'light' it with miss
+       //  shader 
+      return attenuation * missColor(ray);
+
+    else if (prd.out.scatterEvent == rayGotCancelled)
+      return vec3f(0.f);
+
+    else { // ray is still alive, and got properly bounced
+      attenuation *= prd.out.attenuation;
+      ray = optix::make_Ray(prd.out.scattered_origin.as_float3(),
+                            prd.out.scattered_direction.as_float3(),
+                            0,
+                            1e-3f,
+                            RT_DEFAULT_MAX);
+    }
+  }
+  // recursion did not terminate - cancel it
+  return vec3f(0.f);
+}
+
+//Below is a debug version of color() that spits out the normal.
 /*
  *inline __device__ vec3f color(optix::Ray &ray, DRand48 &rnd)
  *{
@@ -78,49 +110,18 @@ inline __device__ vec3f missColor(const optix::Ray &ray)
  *
  *  vec3f attenuation = 1.f;
  *  
- *  //iterative version of recursion, up to depth 50 
- *  for (int depth=0;depth<50;depth++) {
+ *  for (int depth=0;depth<1;depth++) {
  *    rtTrace(world, ray, prd);
- *    if (prd.out.scatterEvent == rayDidntHitAnything)
- *       //ray got 'lost' to the environment - 'light' it with miss
- *       //  shader 
- *      return attenuation * missColor(ray);
- *
- *    else if (prd.out.scatterEvent == rayGotCancelled)
+ *    if (prd.out.scatterEvent == rayDidntHitAnything || prd.out.scatterEvent == rayGotCancelled) {
  *      return vec3f(0.f);
- *
- *    else { // ray is still alive, and got properly bounced
- *      attenuation *= prd.out.attenuation;
- *      ray = optix::make_Ray(prd.out.scattered_origin.as_float3(),
- *                            prd.out.scattered_direction.as_float3(),
- *                            0,
- *                            1e-3f,
- *                            RT_DEFAULT_MAX);
+ *    } else { // ray is still alive
+ *      return 0.5f*prd.out.normal + 0.5f;
  *    }
  *  }
  *  // recursion did not terminate - cancel it
  *  return vec3f(0.f);
  *}
  */
-
-inline __device__ vec3f color(optix::Ray &ray, DRand48 &rnd)
-{
-  PerRayData prd;
-  prd.in.randState = &rnd;
-
-  vec3f attenuation = 1.f;
-  
-  for (int depth=0;depth<1;depth++) {
-    rtTrace(world, ray, prd);
-    if (prd.out.scatterEvent == rayDidntHitAnything || prd.out.scatterEvent == rayGotCancelled) {
-      return vec3f(0.f);
-    } else { // ray is still alive
-      return 0.5f*prd.out.normal + 0.5f;
-    }
-  }
-  // recursion did not terminate - cancel it
-  return vec3f(0.f);
-}
 
 /*! the actual ray generation program - note this has no formal
   function parameters, but gets its paramters throught the 'pixelID'

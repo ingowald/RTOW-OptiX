@@ -45,12 +45,13 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
                                vec3f &scattered_direction,
                                vec3f &attenuation)
 {
+  float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
   vec3f target
-    = hit_rec_p + hit_rec_normal + random_in_unit_sphere(rndState);
+    = hit_pt_world + hit_rec_normal + random_in_unit_sphere(rndState);
 
   // return scattering event
-  scattered_origin    = hit_rec_p;
-  scattered_direction = (target-hit_rec_p);
+  scattered_origin    = hit_pt_world;
+  scattered_direction = (target-hit_pt_world);
   attenuation         = albedo;
   return true;
 }
