@@ -213,8 +213,8 @@ optix::Group createScene()
 { 
   //Pre-create one geometry instance per material. 
   optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
-  optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
-  optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
+  //optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
+  //optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
 
   //Make a geometry group for each of the geometry instances created above. 
   //Build an acceleration structure for each.
@@ -224,41 +224,41 @@ optix::Group createScene()
   ggDiffuse->setChildCount(1);
   ggDiffuse->setChild(0, giDiffuseSphere);
 
-  optix::Acceleration accMetal = g_context->createAcceleration("Bvh");
-  optix::GeometryGroup ggMetal = g_context->createGeometryGroup();
-  ggMetal->setAcceleration(accMetal);
-  ggMetal->setChildCount(1);
-  ggMetal->setChild(0, giMetalSphere);
+  //optix::Acceleration accMetal = g_context->createAcceleration("Bvh");
+  //optix::GeometryGroup ggMetal = g_context->createGeometryGroup();
+  //ggMetal->setAcceleration(accMetal);
+  //ggMetal->setChildCount(1);
+  //ggMetal->setChild(0, giMetalSphere);
 
-  optix::Acceleration accGlass = g_context->createAcceleration("Bvh");
-  optix::GeometryGroup ggGlass = g_context->createGeometryGroup();
-  ggGlass->setAcceleration(accGlass);
-  ggGlass->setChildCount(1);
-  ggGlass->setChild(0, giGlassSphere);
+  //optix::Acceleration accGlass = g_context->createAcceleration("Bvh");
+  //optix::GeometryGroup ggGlass = g_context->createGeometryGroup();
+  //ggGlass->setAcceleration(accGlass);
+  //ggGlass->setChildCount(1);
+  //ggGlass->setChild(0, giGlassSphere);
 
   //Push the transform returned by createSphereXform to t_list
   std::vector<optix::Transform> t_list;
-  t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse));
+  //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse));
 
-  for (int a = -11; a < 11; a++) {
-    for (int b = -11; b < 11; b++) {
-      float choose_mat = rnd();
-      vec3f center(a + rnd(), 0.2f, b + rnd());
-      if (choose_mat < 0.8f) {
-        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
-      }
-      else if (choose_mat < 0.95f) {
-        t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
-      }
-      else {
-        t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
-      }
-    }
-  }
+  //for (int a = -11; a < 11; a++) {
+    //for (int b = -11; b < 11; b++) {
+      //float choose_mat = rnd();
+      //vec3f center(a + rnd(), 0.2f, b + rnd());
+      //if (choose_mat < 0.8f) {
+        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+      //}
+      //else if (choose_mat < 0.95f) {
+        //t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
+      //}
+      //else {
+        //t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
+      //}
+    //}
+  //}
 
-  t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
-  t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
-  t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(0.5f, 0.0f, 0.f), 1.f, ggDiffuse));
+  //t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
@@ -357,7 +357,8 @@ int main(int ac, char **av)
   const size_t Nx = 1200, Ny = 800;
 
   // create - and set - the camera
-  const vec3f lookfrom(13, 2, 3);
+  //const vec3f lookfrom(13, 2, 3);
+  const vec3f lookfrom(0, 0, -10);
   const vec3f lookat(0, 0, 0);
   Camera camera(lookfrom,
                 lookat,
