@@ -258,7 +258,7 @@ optix::Group createScene()
     }
   }
 
-  t_list.push_back(createSphereXform(vec3f(0.5f, 0.0f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
   t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
   t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
 
@@ -359,8 +359,8 @@ int main(int ac, char **av)
   const size_t Nx = 1200, Ny = 800;
 
   // create - and set - the camera
-  //const vec3f lookfrom(13, 2, 3);
-  const vec3f lookfrom(0, 0, -10);
+  const vec3f lookfrom(13, 2, 3);
+  //const vec3f lookfrom(0, 0, -10);
   const vec3f lookat(0, 0, 0);
   Camera camera(lookfrom,
                 lookat,
