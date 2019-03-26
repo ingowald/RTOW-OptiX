@@ -45,9 +45,12 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
                                vec3f &scattered_direction,
                                vec3f &attenuation)
 {
-  float3 hrn = hit_rec_normal;
-  vec3f reflected = reflect(unit_vector(ray_in.direction),hit_rec_normal);
-  scattered_origin    = hit_rec_p;
+  float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
+  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+
+  float3 hrn = normal_world;
+  vec3f reflected = reflect(unit_vector(ray_in.direction),normal_world);
+  scattered_origin    = hit_pt_world;
   scattered_direction = (reflected+fuzz*random_in_unit_sphere(rndState));
   attenuation         = vec3f(1.f);//albedo;
   return (dot(scattered_direction, hrn) > 0.f);

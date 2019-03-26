@@ -248,21 +248,21 @@ optix::Group createScene()
         t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
       }
       else if (choose_mat < 0.95f) {
-        //t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
-        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+        t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
+        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
       }
       else {
-        //t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
-        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+        t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
+        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
       }
     }
   }
 
-  //t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggGlass));
-  t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggGlass));
+  //t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
   t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
-  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggMetal));
-  t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggMetal));
+  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
