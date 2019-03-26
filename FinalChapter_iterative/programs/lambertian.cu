@@ -46,8 +46,10 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
                                vec3f &attenuation)
 {
   float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
+  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+
   vec3f target
-    = hit_pt_world + hit_rec_normal + random_in_unit_sphere(rndState);
+    = hit_pt_world + normal_world + random_in_unit_sphere(rndState);
 
   // return scattering event
   scattered_origin    = hit_pt_world;
@@ -58,7 +60,9 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
 
 RT_PROGRAM void closest_hit()
 {
-   prd.out.normal = hit_rec_normal;
+
+   float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal)); //debug ONLY
+   prd.out.normal = normal_world; //for debug ONLY
    prd.out.scatterEvent
     = scatter(ray,
               *prd.in.randState,
