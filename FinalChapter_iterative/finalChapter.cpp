@@ -238,27 +238,29 @@ optix::Group createScene()
 
   //Push the transform returned by createSphereXform to t_list
   std::vector<optix::Transform> t_list;
-  //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse));
 
-  //for (int a = -11; a < 11; a++) {
-    //for (int b = -11; b < 11; b++) {
-      //float choose_mat = rnd();
-      //vec3f center(a + rnd(), 0.2f, b + rnd());
-      //if (choose_mat < 0.8f) {
-        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
-      //}
-      //else if (choose_mat < 0.95f) {
+  for (int a = -11; a < 11; a++) {
+    for (int b = -11; b < 11; b++) {
+      float choose_mat = rnd();
+      vec3f center(a + rnd(), 0.2f, b + rnd());
+      if (choose_mat < 0.8f) {
+        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+      }
+      else if (choose_mat < 0.95f) {
         //t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
-      //}
-      //else {
+        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+      }
+      else {
         //t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
-      //}
-    //}
-  //}
+        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
+      }
+    }
+  }
 
   t_list.push_back(createSphereXform(vec3f(0.5f, 0.0f, 0.f), 1.f, ggDiffuse));
-  //t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
-  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
