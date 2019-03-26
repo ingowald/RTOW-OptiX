@@ -57,6 +57,7 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
 
 RT_PROGRAM void closest_hit()
 {
+   prd.out.normal = hit_rec_normal;
    prd.out.scatterEvent
     = scatter(ray,
               *prd.in.randState,
