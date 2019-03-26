@@ -213,8 +213,8 @@ optix::Group createScene()
 { 
   //Pre-create one geometry instance per material. 
   optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
-  //optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
-  //optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
+  optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
+  optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
 
   //Make a geometry group for each of the geometry instances created above. 
   //Build an acceleration structure for each.
@@ -224,17 +224,17 @@ optix::Group createScene()
   ggDiffuse->setChildCount(1);
   ggDiffuse->setChild(0, giDiffuseSphere);
 
-  //optix::Acceleration accMetal = g_context->createAcceleration("Bvh");
-  //optix::GeometryGroup ggMetal = g_context->createGeometryGroup();
-  //ggMetal->setAcceleration(accMetal);
-  //ggMetal->setChildCount(1);
-  //ggMetal->setChild(0, giMetalSphere);
+  optix::Acceleration accMetal = g_context->createAcceleration("Bvh");
+  optix::GeometryGroup ggMetal = g_context->createGeometryGroup();
+  ggMetal->setAcceleration(accMetal);
+  ggMetal->setChildCount(1);
+  ggMetal->setChild(0, giMetalSphere);
 
-  //optix::Acceleration accGlass = g_context->createAcceleration("Bvh");
-  //optix::GeometryGroup ggGlass = g_context->createGeometryGroup();
-  //ggGlass->setAcceleration(accGlass);
-  //ggGlass->setChildCount(1);
-  //ggGlass->setChild(0, giGlassSphere);
+  optix::Acceleration accGlass = g_context->createAcceleration("Bvh");
+  optix::GeometryGroup ggGlass = g_context->createGeometryGroup();
+  ggGlass->setAcceleration(accGlass);
+  ggGlass->setChildCount(1);
+  ggGlass->setChild(0, giGlassSphere);
 
   //Push the transform returned by createSphereXform to t_list
   std::vector<optix::Transform> t_list;
@@ -258,8 +258,10 @@ optix::Group createScene()
     }
   }
 
+  //t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggGlass));
   t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
   t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
+  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggMetal));
   t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
