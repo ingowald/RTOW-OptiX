@@ -135,9 +135,17 @@ optix::GeometryGroup createScene()
   // reference C++ and CUDA codes.
   std::vector<optix::GeometryInstance> d_list;
 
-  d_list.push_back(createSphere(vec3f(0.f, -1000.0f, -1.f), 1000.f,
-                                Lambertian(vec3f(0.5f, 0.5f, 0.5f))));
+  // Add materials to the list of objects
+  // createSphere(vec3f(posx.f,posy.f,posz.f), radius, material)
+  //d_list.push_back(createSphere(vec3f(0.f, -1000.0f, -1.f), 1000.f,
+   //                             Lambertian(vec3f(0.5f, 0.5f, 0.5f))));
+	// this puts the locations from -11 to 11, or 22 parts wide.
+	d_list.push_back(createSphere(vec3f(0.17146,-0.68537,-0.47017),0.1f,Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
+	d_list.push_back(createSphere(vec3f(0.67365,-1.0869,-0.28247),0.1f,Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
+	d_list.push_back(createSphere(vec3f(0.33694,-1.6386,-0.41639),0.1f,Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
+	d_list.push_back(createSphere(vec3f(-0.25608,-1.2095,-0.39966),0.1f,Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
 
+	/*
   for (int a = -11; a < 11; a++) {
     for (int b = -11; b < 11; b++) {
       float choose_mat = rnd();
@@ -158,7 +166,9 @@ optix::GeometryGroup createScene()
   d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Dielectric(1.5f)));
   d_list.push_back(createSphere(vec3f(-4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
   d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f)));
+  */
   
+  //----------------------------------------------
   // now, create the optix world that contains all these GIs
   optix::GeometryGroup d_world = g_context->createGeometryGroup();
   d_world->setAcceleration(g_context->createAcceleration("Bvh"));
@@ -255,6 +265,7 @@ int main(int ac, char **av)
   const size_t Nx = 1200, Ny = 800;
 
   // create - and set - the camera
+  // Get the camera position and tell it to look at (0,0,0)
   const vec3f lookfrom(13, 2, 3);
   const vec3f lookat(0, 0, 0);
   Camera camera(lookfrom,
