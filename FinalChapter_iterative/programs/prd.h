@@ -41,5 +41,6 @@ struct PerRayData {
     vec3f        scattered_origin;
     vec3f        scattered_direction;
     vec3f        attenuation;
+    vec3f        normal; //debug only. Please remove when finished.
   } out;
 };
