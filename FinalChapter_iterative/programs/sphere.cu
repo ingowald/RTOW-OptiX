@@ -52,7 +52,8 @@ RT_PROGRAM void hit_sphere(int pid)
   if (temp < ray.tmax && temp > ray.tmin) {
     if (rtPotentialIntersection(temp)) {
       hit_rec_p = ray.origin + temp * ray.direction;
-      hit_rec_normal = (hit_rec_p - center) / radius;
+      /*hit_rec_normal = (hit_rec_p - center) / radius;*/
+      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
       rtReportIntersection(0);
     }
   }
@@ -60,7 +61,8 @@ RT_PROGRAM void hit_sphere(int pid)
   if (temp < ray.tmax && temp > ray.tmin) {
     if (rtPotentialIntersection(temp)) {
       hit_rec_p = ray.origin + temp * ray.direction;
-      hit_rec_normal = (hit_rec_p - center) / radius;
+      /*hit_rec_normal = (hit_rec_p - center) / radius;*/
+      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
       rtReportIntersection(0);
     }
   }
