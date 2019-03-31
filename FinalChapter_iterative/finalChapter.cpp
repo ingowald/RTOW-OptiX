@@ -150,10 +150,10 @@ optix::GeometryGroup createScene()
 	std::ifstream csvfile("../tensor.csv");
 	int count = 0;
 	if(csvfile.is_open()) {
+		// while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
 		while(count <5) {
 			getline(csvfile,line);
-			std::cout<<line<<'\n';
-
+			//std::cout<<line<<'\n';
 			if(count>0) // If we are no longer on the first line
 			{
 				std::vector<float> row;
@@ -172,7 +172,7 @@ optix::GeometryGroup createScene()
 				x = row[9];
 				y = row[10];
 				z = row[11];
-				std::cout<<x<<' '<<y<<' '<<z<<'\n';
+				//std::cout<<x<<' '<<y<<' '<<z<<'\n';
 				d_list.push_back(createSphere(vec3f(x,y,z), 0.2f,
                               Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
 			}
