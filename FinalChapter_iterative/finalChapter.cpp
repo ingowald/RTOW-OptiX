@@ -160,20 +160,21 @@ optix::GeometryGroup createScene()
 				std::string substr;
 				std::stringstream ss;
 				ss << line;
-				float a0,b1,c2,d3,e4,f5,g6,h7,i8;
+				//float a0,b1,c2,d3,e4,f5,g6,h7,i8;
 				while(ss.good()){
 					getline(ss,substr,',');
 					//std::cout<<substr;
 					double temp = ::atof(substr.c_str());
-					std::cout<<temp<<'\n';
+					//std::cout<<temp<<'\n';
 					row.push_back((float)temp);
 				}
 				float x,y,z;
 				x = row[6];
 				y = row[7];
 				z = row[8];
-				d_list.push_back(createSphere(vec3f(x,y,z), 1.f,
-                              Lambertian(vec3f(0.2f, 0.7f, 0.5f))));
+				std::cout<<x<<' '<<y<<' '<<z<<'\n';
+				d_list.push_back(createSphere(vec3f(x,y,z), 0.2f,
+                              Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
 			}
 			
 			count++;
