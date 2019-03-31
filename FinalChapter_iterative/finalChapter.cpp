@@ -169,9 +169,9 @@ optix::GeometryGroup createScene()
 					row.push_back((float)temp);
 				}
 				float x,y,z;
-				x = row[6];
-				y = row[7];
-				z = row[8];
+				x = row[9];
+				y = row[10];
+				z = row[11];
 				std::cout<<x<<' '<<y<<' '<<z<<'\n';
 				d_list.push_back(createSphere(vec3f(x,y,z), 0.2f,
                               Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
