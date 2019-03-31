@@ -147,7 +147,7 @@ optix::GeometryGroup createScene()
 	
 	// Read a csv file in the format of 9 columns for the tensor data and 3 for the point data
 	std::string line;
-	std::ifstream csvfile("tensor.csv");
+	std::ifstream csvfile("../tensor.csv");
 	int count = 0;
 	if(csvfile.is_open()) {
 		while(count <5) {
@@ -157,7 +157,6 @@ optix::GeometryGroup createScene()
 			if(count>0) // If we are no longer on the first line
 			{
 				std::vector<float> row;
-				// Inspired by https://stackoverflow.com/questions/1894886/parsing-a-comma-delimited-stdstring
 				std::string substr;
 				std::stringstream ss;
 				ss << line;
