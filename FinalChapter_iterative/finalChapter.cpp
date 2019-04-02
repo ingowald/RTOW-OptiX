@@ -275,6 +275,7 @@ optix::Group createScene()
 			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		  }
 	  }
+	  csvfile.close();
   }
   //------------------------------------------------------
   
