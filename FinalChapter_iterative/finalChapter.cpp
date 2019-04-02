@@ -117,59 +117,6 @@ struct Dielectric : public Material {
 };
 
 
-
-/*
- *optix::GeometryGroup createScene()
- *{ 
- *  // first, create all geometry instances (GIs), and, for now,
- *  // store them in a std::vector. For ease of reference, I'll
- *  // stick wit the 'd_list' and 'd_world' names used in the
- *  // reference C++ and CUDA codes.
- *  std::vector<optix::GeometryInstance> d_list;
- *
- *  d_list.push_back(createSphere(vec3f(0.f, -1000.0f, -1.f), 1000.f,
- *                                Lambertian(vec3f(0.5f, 0.5f, 0.5f))));
- *
- *  for (int a = -11; a < 11; a++) {
- *    for (int b = -11; b < 11; b++) {
- *      float choose_mat = rnd();
- *      vec3f center(a + rnd(), 0.2f, b + rnd());
- *      if (choose_mat < 0.8f) {
- *        d_list.push_back(createSphere(center, 0.2f,
- *                                      Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
- *      }
- *      else if (choose_mat < 0.95f) {
- *        d_list.push_back(createSphere(center, 0.2f,
- *                                      //Metal(vec3f(0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd()), 0.5f*(1.0f + rnd())), 0.5f*rnd())));
- *                                      Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
- *      }
- *      else {
- *        //d_list.push_back(createSphere(center, 0.2f, Dielectric(1.5f)));
- *        d_list.push_back(createSphere(center, 0.2f,
- *                                      Lambertian(vec3f(rnd()*rnd(), rnd()*rnd(), rnd()*rnd()))));
- *      }
- *    }
- *  }
- *  //d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Dielectric(1.5f)));
- *  //d_list.push_back(createSphere(vec3f(-4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
- *  //d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f)));
- *
- *  d_list.push_back(createSphere(vec3f(0.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
- *  d_list.push_back(createSphere(vec3f(-4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.4f, 0.2f, 0.1f))));
- *  d_list.push_back(createSphere(vec3f(4.f, 1.f, 0.f), 1.f, Lambertian(vec3f(0.7f, 0.6f, 0.5f))));
- *  
- *  // now, create the optix world that contains all these GIs
- *  optix::GeometryGroup d_world = g_context->createGeometryGroup();
- *  d_world->setAcceleration(g_context->createAcceleration("Bvh"));
- *  d_world->setChildCount((int)d_list.size());
- *  for (int i = 0; i < d_list.size(); i++)
- *    d_world->setChild(i, d_list[i]);
- *
- *  // that all we have to do, the rest is up to optix
- *  return d_world;
- *}
- */
-
 optix::GeometryInstance createSphere(const vec3f &center, const float radius, const Material &material)
 {
   optix::Geometry geometry = g_context->createGeometry();
@@ -407,12 +354,7 @@ int main(int ac, char **av)
   //const vec3f lookfrom(13, 2, 3);
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
-  // Position for tensor.csv
 
-  /*
-   *const vec3f lookfrom(33,19.7,22.85);
-   *const vec3f lookat(7.6,13.69,12.4);
-   */
   const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
   const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
