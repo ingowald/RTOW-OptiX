@@ -44,31 +44,35 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
                                vec3f &scattered_direction,
                                vec3f &attenuation)
 {
+
+  float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
+  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+
   vec3f outward_normal;
-  vec3f reflected = reflect(ray_in.direction, hit_rec_normal);
+  vec3f reflected = reflect(ray_in.direction, normal_world);
   float ni_over_nt;
   attenuation = vec3f(1.f, 1.f, 1.f); 
   vec3f refracted;
   float reflect_prob;
   float cosine;
   
-  if (dot(ray_in.direction, hit_rec_normal) > 0.f) {
-    outward_normal = -hit_rec_normal;
+  if (dot(ray_in.direction, normal_world) > 0.f) {
+    outward_normal = -normal_world;
     ni_over_nt = ref_idx;
-    cosine = dot(ray_in.direction, hit_rec_normal) / vec3f(ray_in.direction).length();
+    cosine = dot(ray_in.direction, normal_world) / vec3f(ray_in.direction).length();
     cosine = sqrtf(1.f - ref_idx*ref_idx*(1.f-cosine*cosine));
   }
   else {
-    outward_normal = hit_rec_normal;
+    outward_normal = normal_world;
     ni_over_nt = 1.0 / ref_idx;
-    cosine = -dot(ray_in.direction, hit_rec_normal) / vec3f(ray_in.direction).length();
+    cosine = -dot(ray_in.direction, normal_world) / vec3f(ray_in.direction).length();
   }
   if (refract(ray_in.direction, outward_normal, ni_over_nt, refracted)) 
     reflect_prob = schlick(cosine, ref_idx);
   else 
     reflect_prob = 1.f;
 
-  scattered_origin = hit_rec_p;
+  scattered_origin = hit_pt_world;
   if (rnd() < reflect_prob) 
     scattered_direction = reflected;
   else 
