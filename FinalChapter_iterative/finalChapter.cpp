@@ -412,8 +412,8 @@ int main(int ac, char **av)
   const vec3f lookat(7.6,13.69,12.4);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(0, 1, 0),
-                /* fovy, in degrees */ 20.0,
+                /* up */ vec3f(-0.082,0.936,-0.342),//vec3f(0, 1, 0),
+                /* fovy, in degrees */ 45, //20.0,
                 /* aspect */ float(Nx) / float(Ny),
                 /* aperture */ 0.1f,
                 /* dist to focus: */ 10.f);
