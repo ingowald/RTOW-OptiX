@@ -256,8 +256,8 @@ optix::Group createScene()
 	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
 	  while(getline(csvfile,line)){
 	  //while(count<5) {
-		  getline(csvfile,line);
-		  std::cout<<line<<'\n';
+		  //getline(csvfile,line);
+		  //std::cout<<line<<'\n';
 		  if(count>0){
 			  std::vector<float> row;
 			  std::string substr;
@@ -275,7 +275,7 @@ optix::Group createScene()
 			  vec3f center(row[9],row[10],row[11]);
 			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		  }
-		  //count++;
+		  count++;
 	  }
 	  csvfile.close();
   }
@@ -404,9 +404,12 @@ int main(int ac, char **av)
 
   // create - and set - the camera
   // Get the camera position and tell it to look at (0,0,0)
-  const vec3f lookfrom(13, 2, 3);
+  //const vec3f lookfrom(13, 2, 3);
   //const vec3f lookfrom(0, 0, -10);
-  const vec3f lookat(0, 0, 0);
+  //const vec3f lookat(0, 0, 0);
+  // Position for tensor.csv
+  const vec3f lookfrom(33,19.7,22.85);
+  const vec3f lookat(7.6,13.69,12.4);
   Camera camera(lookfrom,
                 lookat,
                 /* up */ vec3f(0, 1, 0),
