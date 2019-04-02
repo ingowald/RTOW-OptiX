@@ -246,7 +246,7 @@ optix::Group createScene()
   std::vector<optix::Transform> t_list;
   
   // This is the plane the original balls rested on
-  t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
+  //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
   // --------------Uplift this code later to main()-------
   std::string line;
   std::ifstream csvfile("../tensor.csv");
