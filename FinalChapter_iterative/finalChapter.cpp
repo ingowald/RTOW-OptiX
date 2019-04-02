@@ -273,7 +273,7 @@ optix::Group createScene()
 			  y = row[10];
 			  z = row[11];
 			  vec3f center(row[9],row[10],row[11]);
-			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
+			  t_list.push_back(createSphereXform(center,0.01f,ggDiffuse));
 		  }
 		  count++;
 	  }
@@ -408,14 +408,19 @@ int main(int ac, char **av)
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
   // Position for tensor.csv
-  const vec3f lookfrom(33,19.7,22.85);
-  const vec3f lookat(7.6,13.69,12.4);
+
+  /*
+   *const vec3f lookfrom(33,19.7,22.85);
+   *const vec3f lookat(7.6,13.69,12.4);
+   */
+  const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
+  const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(-0.082,0.936,-0.342),//vec3f(0, 1, 0),
-                /* fovy, in degrees */ 45, //20.0,
+                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//vec3f(0, 1, 0),
+                /* fovy, in degrees */ 30, //20.0,
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ 0.1f,
+                /* aperture */ 0.0f,
                 /* dist to focus: */ 10.f);
   camera.set();
 
