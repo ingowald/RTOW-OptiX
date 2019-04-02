@@ -420,8 +420,8 @@ int main(int ac, char **av)
                 /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//vec3f(0, 1, 0),
                 /* fovy, in degrees */ 30, //20.0,
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ 0.0f,
-                /* dist to focus: */ 10.f);
+                /* aperture */ 0.01f,
+                /* dist to focus: */ 1.0f);
   camera.set();
 
   // set the ray generation and miss shader program
