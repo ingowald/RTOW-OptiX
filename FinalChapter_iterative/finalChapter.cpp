@@ -28,6 +28,11 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <string>
+#include <stdlib.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #include <optixu/optixu_matrix_namespace.h>
 
 optix::Context g_context;
@@ -238,8 +243,39 @@ optix::Group createScene()
 
   //Push the transform returned by createSphereXform to t_list
   std::vector<optix::Transform> t_list;
-  t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse));
-
+  
+  // --------------Uplift this code later to main()-------
+  std::string line;
+  std::ifstream csvfile("../tensor.csv");
+  int count =0; // This is just to limit the amount of the file we read for testing
+  if(csvfile.is_open()){
+	  //while(csvfile.good()?
+	  while(count<5) {
+		  getline(csvfile,line);
+		  if(count>0){
+			  std::vector<float> row;
+			  std::string substr;
+			  std::stringstream ss;
+			  ss<<line;
+			  while(ss.good()){
+				  getline(ss,substr,',');
+				  double temp = ::atof(substr.c_str());
+				  row.push_back((float)temp);
+			  }
+			  float x,y,z;
+			  x = row[9];
+			  y = row[10];
+			  z = row[11];
+			  std::cout<<x<<' '<<y<<' '<<zz<<'\n';
+			  vec3f center(row[9],row[10],row[11]);
+			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse);
+		  }
+	  }
+  }
+  //------------------------------------------------------
+  // This is the plane the original balls rested on
+  //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
+	/*
   for (int a = -11; a < 11; a++) {
     for (int b = -11; b < 11; b++) {
       float choose_mat = rnd();
@@ -263,7 +299,7 @@ optix::Group createScene()
   t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
   t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggMetal));
   //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
-
+*/
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
   optix::Group t_world = g_context->createGroup();
