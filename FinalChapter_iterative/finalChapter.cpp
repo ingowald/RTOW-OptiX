@@ -254,7 +254,7 @@ optix::Group createScene()
   if(csvfile.is_open()){
 	  //while(csvfile.good()? 
 	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
-	  while(count<3) {
+	  while(count<5) {
 		  getline(csvfile,line);
 		  std::cout<<line<<'\n';
 		  if(count>0){
@@ -274,6 +274,7 @@ optix::Group createScene()
 			  vec3f center(row[9],row[10],row[11]);
 			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		  }
+		  count++;
 	  }
 	  csvfile.close();
   }
