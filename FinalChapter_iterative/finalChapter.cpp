@@ -245,6 +245,8 @@ optix::Group createScene()
   //Push the transform returned by createSphereXform to t_list
   std::vector<optix::Transform> t_list;
   
+  // This is the plane the original balls rested on
+  t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
   // --------------Uplift this code later to main()-------
   std::string line;
   std::ifstream csvfile("../tensor.csv");
@@ -254,6 +256,7 @@ optix::Group createScene()
 	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
 	  while(count<3) {
 		  getline(csvfile,line);
+		  std::cout<<line<<'\n';
 		  if(count>0){
 			  std::vector<float> row;
 			  std::string substr;
@@ -274,8 +277,7 @@ optix::Group createScene()
 	  }
   }
   //------------------------------------------------------
-  // This is the plane the original balls rested on
-  //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
+  
 	/*
   for (int a = -11; a < 11; a++) {
     for (int b = -11; b < 11; b++) {
