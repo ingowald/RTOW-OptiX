@@ -254,6 +254,7 @@ optix::Group createScene()
 	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
 	  while(count<5) {
 		  getline(csvfile,line);
+		  std::cout<<line<<'\n';
 		  if(count>0){
 			  std::vector<float> row;
 			  std::string substr;
