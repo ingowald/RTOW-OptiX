@@ -268,9 +268,10 @@ optix::Group createScene()
 			  x = row[9];
 			  y = row[10];
 			  z = row[11];
-			  std::cout<<x<<' '<<y<<' '<<zz<<'\n';
+			  
+			  std::cout<<x<<' '<<y<<' '<<z<<'\n';
 			  vec3f center(row[9],row[10],row[11]);
-			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse);
+			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		  }
 	  }
   }
