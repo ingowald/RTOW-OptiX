@@ -194,16 +194,13 @@ optix::Group createScene()
   
   // This is the plane the original balls rested on
   //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
+
   // --------------Uplift this code later to main()-------
   std::string line;
   std::ifstream csvfile("../tensor.csv");
   int count =0; // This is just to limit the amount of the file we read for testing
   if(csvfile.is_open()){
-	  //while(csvfile.good()? 
-	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
 	  while(getline(csvfile,line)){
-	  //while(count<5) {
-		  //getline(csvfile,line);
 		  //std::cout<<line<<'\n';
 		  if(count>0){
 			  std::vector<float> row;
