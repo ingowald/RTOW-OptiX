@@ -407,13 +407,22 @@ int main(int ac, char **av)
   //const vec3f lookfrom(13, 2, 3);
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
+  //const vec3f vup(0,1,0);
+  //float vfov = 20.0;
+  // Camera params : const vec3f &lookfrom, const vec3f &lookat, const vec3f &vup, 
+         //float vfov, float aspect, float aperture, float focus_dist
   // Position for tensor.csv
-  const vec3f lookfrom(33,19.7,22.85);
-  const vec3f lookat(7.6,13.69,12.4);
+  //const vec3f lookfrom(33,19.7,22.85);
+  //const vec3f lookat(7.6,13.69,12.4);
+  //const vec3f vup(-0.082,0.936,-0.342);
+  const vec3f lookfrom(1.149, -0.324, 1.027);
+  const vec3f lookat(-42.929, -32.672, -18.724);
+  const vec3f vup(0.644, -0.722, -0.255);
+  float vfov = 45;
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(-0.082,0.936,-0.342),//vec3f(0, 1, 0),
-                /* fovy, in degrees */ 45, //20.0,
+                /* up */ vup,//vec3f(0, 1, 0),
+                /* fovy, in degrees */ vfov, //20.0,
                 /* aspect */ float(Nx) / float(Ny),
                 /* aperture */ 0.1f,
                 /* dist to focus: */ 10.f);
