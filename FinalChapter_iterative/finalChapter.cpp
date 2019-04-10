@@ -171,7 +171,7 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
   return trSphere;
 }
 
-optix::Group createScene()
+optix::Group createScene(const std::string& filename)
 { 
   //Pre-create one geometry instance per material. 
   optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
@@ -206,7 +206,8 @@ optix::Group createScene()
 
   // --------------Uplift this code later to main()-------
   std::string line;
-  std::ifstream csvfile("../tensor.csv");
+  //std::ifstream csvfile("../tensor.csv");
+  std::ifstream csvfile(filename);
   int count =0; // This is just to limit the amount of the file we read for testing
   if(csvfile.is_open()){
 	  while(getline(csvfile,line)){
@@ -359,8 +360,14 @@ void setMissProgram()
   g_context->setMissProgram(/*program ID:*/0, missProgram);
 }
 
-int main(int ac, char **av)
+int main(int argc, char **argv)
 {
+
+  if(argc != 2){
+    std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
+    exit(1);
+  }
+
   // before doing anything else: create a optix context
   g_context = optix::Context::create();
   g_context->setRayTypeCount(1);
@@ -396,7 +403,7 @@ int main(int ac, char **av)
 
   // create the world to render
   //optix::GeometryGroup world = createScene();
-  optix::Group world = createScene();
+  optix::Group world = createScene(std::string(argv[1]));
   g_context["world"]->set(world);
 
   const int numSamples = 128;
