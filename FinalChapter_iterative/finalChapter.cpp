@@ -142,14 +142,23 @@ optix::GeometryInstance createUnitSphere(const Material &material){
 }
 
 //Assumes the transform is paired with a unit sphere.
-optix::Transform createSphereXform(const vec3f &center, const float radius, const optix::GeometryGroup &gg)
+optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& upperLeft, const float radius, const optix::GeometryGroup &gg)
 {
   //create transform based on the given center and radius
+  /*
+   *float sphereMatRaw[16] =
+   *{                    
+   *  radius, 0.0f,   0.0f,   center.x,
+   *  0.0f,   radius, 0.0f,   center.y, 
+   *  0.0f,   0.0f,   radius, center.z,
+   *  0.0f,   0.0f,   0.0f,   1.0f                                 
+   *};                                                              
+   */
   float sphereMatRaw[16] =
   {                    
-    radius, 0.0f,   0.0f,   center.x,
-    0.0f,   radius, 0.0f,   center.y, 
-    0.0f,   0.0f,   radius, center.z,
+    radius*upperLeft[0], radius*upperLeft[1], radius*upperLeft[2], center.x,
+    radius*upperLeft[3], radius*upperLeft[4], radius*upperLeft[5], center.y, 
+    radius*upperLeft[6], radius*upperLeft[7], radius*upperLeft[8], center.z,
     0.0f,   0.0f,   0.0f,   1.0f                                 
   };                                                              
   optix::Matrix4x4 matrixSphere(sphereMatRaw);   
@@ -217,7 +226,21 @@ optix::Group createScene()
 			  y = row[10];
 			  z = row[11];
 			  vec3f center(row[9],row[10],row[11]);
-			  t_list.push_back(createSphereXform(center,0.01f,ggDiffuse));
+
+        //assuming row major order
+        optix::Matrix3x3 tensor;
+        tensor = optix::Matrix3x3::identity();
+
+        for (int i=0; i < 9; i++){
+          tensor[i] = row[i];
+          //printf("%f %f %f\n%f %f %f\n%f %f %f\n",row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]);
+          //std::cout << " ********* " << std::endl;
+        }
+
+        optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensor + tensor.transpose());
+
+				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
+        t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
 		  }
 		  count++;
 	  }
