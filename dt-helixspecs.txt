@@ -1,0 +1,9 @@
+NRRD0001
+type: float
+dimension: 4
+sizes: 7 38 39 40
+axis mins:  NaN -2 -2 -2
+axis maxs:  NaN 2 2 2
+data file: ./dt-helix.raw
+endian: big
+encoding: raw
