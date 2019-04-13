@@ -404,21 +404,22 @@ optix::Group createScene()
   // Get spiral vector tensors. 
   // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
 	std::vector<std::vector<float> > tensors2 = raw_spiral_reader();
-	std::cout<<"Tensor vector length="<<tensors2.size();
+	//std::cout<<"Tensor vector length="<<tensors2.size();
 
 	// Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
-	std::vector<std::vector<float> > tensors = pipe_tensors();
-	std::cout<<"Tensor vector length for the pipe="<<tensors.size();
+	//std::vector<std::vector<float> > tensors = pipe_tensors();
+	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
 	
 	// **** Work on this
-	if(tensors.size()>0){
-		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
+	if(tensors2.size()>0){
+		for(std::vector<std::vector<float> >::iterator it = tensors2.begin(); it != tensors2.end(); it++) {
 			std::vector<float> row = *it;
 			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 10 items long
 			//printf("%f %f %f %f %f %f %f %f",row[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7]);
 			// Create the shape and add it to the list
-			vec3f center(row[9],row[10],row[11]);
+			//vec3f center(row[9],row[10],row[11]);
+			vec3f center(row[7],row[8],row[9]);
 			t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		}
 	}
