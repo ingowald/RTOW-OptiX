@@ -20,6 +20,9 @@
 // optix
 #include <optix.h>
 #include <optixu/optixpp.h>
+#include <optixu/optixu_matrix_namespace.h>
+//yaml (for parsing config file)
+#include <yaml-cpp/yaml.h>
 // std
 #define _USE_MATH_DEFINES 1
 #include <math.h>
@@ -34,10 +37,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <optixu/optixu_matrix_namespace.h>
-#include <yaml-cpp/yaml.h> //For parsing config
-
-
+#include <limits>
 
 optix::Context g_context;
 
@@ -370,6 +370,13 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  //Initialize floating-point valuse to NaNs instead of leaving them
+  //uninitialized. Since NaN's propagate, this makes the program easier to
+  //debug if we are using an uninitialized value somewhere we shouldn't.
+  //const float nan = std::numeric_limits<float>::quiet_NaN();
+  //float fovy = nan; 
+  //vec3f cam_pos(NAN);
+
   std::string config_file_name = std::string(argv[1]);
   size_t config_fname_len = config_file_name.length();
   std::string ext(".yaml");
@@ -378,10 +385,17 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  std::cout << "Hello, YAML!" << std::endl;
-  YAML::Node config = YAML::LoadFile("../config.yaml");
-  std::cout << config["camera"]["fovy"] << std::endl;
-  exit(0);
+  std::cout << "Loading config, in YAML format, at: " << config_file_name << std::endl;
+  YAML::Node config = YAML::LoadFile(config_file_name);
+  const float fovy = config["camera"]["fovy"].as<float>(); 
+  YAML::Node cam_pos = config["camera"]["position"];
+  assert(cam_pos.IsSequence());
+  const vec3f lookfrom(cam_pos[0].as<float>(), cam_pos[1].as<float>(), cam_pos[2].as<float>());
+
+  std::cout << "cam pos: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
+  std::cout << "fovy: " << fovy << std::endl;
+  
+  //exit(0);
 
   if(argc != 2){ //OLD CODE! 
     std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
@@ -402,7 +416,7 @@ int main(int argc, char **argv)
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
 
-  const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
+  //const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
   const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
@@ -423,7 +437,8 @@ int main(int argc, char **argv)
 
   // create the world to render
   //optix::GeometryGroup world = createScene();
-  optix::Group world = createScene(std::string(argv[1]));
+  //optix::Group world = createScene(std::string(argv[1]));
+  optix::Group world = createScene("../tensor.csv"); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
   const int numSamples = 128;
