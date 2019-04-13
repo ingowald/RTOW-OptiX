@@ -20,7 +20,6 @@ cmake_minimum_required(VERSION 2.8)
 
 include(cmake/configure_optix.cmake)
 
-
 if(NOT SET_UP_CONFIGURATIONS_DONE)
     set(SET_UP_CONFIGURATIONS_DONE 1)
 

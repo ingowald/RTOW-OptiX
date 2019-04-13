@@ -34,6 +34,8 @@
 #include <sstream>
 #include <vector>
 #include <optixu/optixu_matrix_namespace.h>
+#include <yaml-cpp/yaml.h> //For parsing config
+
 
 
 optix::Context g_context;
@@ -362,6 +364,10 @@ void setMissProgram()
 
 int main(int argc, char **argv)
 {
+
+  std::cout << "Hello, YAML!" << std::endl;
+  YAML::Node config = YAML::LoadFile("../config.yaml");
+  exit(0);
 
   if(argc != 2){
     std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;

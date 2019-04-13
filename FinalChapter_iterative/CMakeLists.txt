@@ -52,5 +52,6 @@ add_executable(finalChapter_iterative
 
 target_link_libraries(finalChapter_iterative
   ${optix_LIBRARY}
+  yaml-cpp
   )
 
