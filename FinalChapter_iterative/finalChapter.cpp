@@ -414,9 +414,9 @@ optix::Group createScene()
 	// **** Work on this
 	if(tensors.size()>0){
 		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
-			std::vector<float> temp = *it;
-			std::cout << ' ' << temp.size()<<std::endl; // This particular one is 10 items long
-			printf("%f %f %f %f %f %f %f %f",temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7]);
+			std::vector<float> row = *it;
+			std::cout << ' ' << row.size()<<std::endl; // This particular one is 10 items long
+			//printf("%f %f %f %f %f %f %f %f",row[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7]);
 			// Create the shape and add it to the list
 			vec3f center(row[9],row[10],row[11]);
 			t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
