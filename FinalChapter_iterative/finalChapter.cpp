@@ -49,6 +49,11 @@ extern "C" const char embedded_metal_programs[];
 extern "C" const char embedded_dielectric_programs[];
 extern "C" const char embedded_lambertian_programs[];
 
+union raw_float {
+	u_char buffer[4];
+	float number;
+};
+
 float rnd()
 {
   // static std::random_device rd;  //Will be used to obtain a seed for the random number engine
