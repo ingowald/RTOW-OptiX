@@ -375,10 +375,11 @@ optix::Group createScene(const std::string& filename)
 			tensorpart[6]=row[2]; // Dzx=Dxz
 			tensorpart[7]=row[4]; // Dzy = Dyz
 			tensorpart[8]=row[5]; // Dzz
-			//optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
-			optix::Matrix3x3 symmetrized_tensor = tensorpart;
+			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
+			//optix::Matrix3x3 symmetrized_tensor = tensorpart;
 				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
 			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+			printf("Tensor added to the sphere list");
 		}
 	}
 	
