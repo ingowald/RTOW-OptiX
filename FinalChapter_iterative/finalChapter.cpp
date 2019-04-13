@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <vector>
 #include <optixu/optixu_matrix_namespace.h>
 #include <yaml-cpp/yaml.h> //For parsing config
@@ -364,12 +365,25 @@ void setMissProgram()
 
 int main(int argc, char **argv)
 {
+  if(argc != 2){ 
+    std::cout << "Usage: ./finalChapter_iterative <config_file>.yaml" << std::endl;
+    exit(1);
+  }
+
+  std::string config_file_name = std::string(argv[1]);
+  size_t config_fname_len = config_file_name.length();
+  std::string ext(".yaml");
+  if( config_fname_len < ext.length() || config_file_name.compare(config_fname_len - ext.length(),ext.length(), ext) != 0 ){
+    std::cout << "Input must be a .yaml file!" << std::endl;
+    exit(1);
+  }
 
   std::cout << "Hello, YAML!" << std::endl;
   YAML::Node config = YAML::LoadFile("../config.yaml");
+  std::cout << config["camera"]["fovy"] << std::endl;
   exit(0);
 
-  if(argc != 2){
+  if(argc != 2){ //OLD CODE! 
     std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
     exit(1);
   }
