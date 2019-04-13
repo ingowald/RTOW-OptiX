@@ -371,14 +371,14 @@ optix::Group createScene(const std::string& filename)
 	
 	// **** Work on this
 	if(tensors.size()>0){
-		for(std::vector<std::vector<float> >::iterator it = tensors2.begin(); it != tensors2.end(); it++) {
+		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
 			std::vector<float> row = *it;
 			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 10 items long
 			//printf("%f %f %f %f %f %f %f %f",row[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7]);
 			// Create the shape and add it to the list
 			//vec3f center(row[9],row[10],row[11]);
 			vec3f center(row[7],row[8],row[9]);
-			optix::Matrix3x3 tensor;
+			optix::Matrix3x3 tensorpart;
 			tensorpart = optix::Matrix3x3::identity();
 			for (int i=0; i < 9; i++){
 				tensorpart[i] = row[i];
