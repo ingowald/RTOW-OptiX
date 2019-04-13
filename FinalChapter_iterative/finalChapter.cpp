@@ -356,6 +356,7 @@ optix::Group createScene(const std::string& filename)
   
   // Get spiral vector tensors. 
   // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
+  /*
 	std::vector<std::vector<float> > tensors = raw_spiral_reader(filename);
 	//std::cout<<"Tensor vector length="<<tensors2.size();
 	// For use with spiral helix tensors
@@ -379,11 +380,11 @@ optix::Group createScene(const std::string& filename)
 			//optix::Matrix3x3 symmetrized_tensor = tensorpart;
 				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
 			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
-			printf("Tensor added to the sphere list");
+			//printf("Tensor added to the sphere list");
 		}
 	}
+	*/
 	
-	/*
 	// Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
 	std::vector<std::vector<float> > tensors = pipe_tensors(filename);
@@ -410,7 +411,7 @@ optix::Group createScene(const std::string& filename)
 			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
 		}
 	}
-*/
+
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
