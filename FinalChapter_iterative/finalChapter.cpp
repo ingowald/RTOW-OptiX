@@ -353,11 +353,12 @@ std::vector<std::vector<float> > pipe_tensors() {
 				  row.push_back((float)temp);
 			  }
 			  float x,y,z;
-			  x = row[9];
-			  y = row[10];
-			  z = row[11];
-			  vec3f center(row[9],row[10],row[11]);
-			  t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
+			  //x = row[9];
+			  //y = row[10];
+			  //z = row[11];
+			  //vec3f center(row[9],row[10],row[11]);
+			  //t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
+			  tensors.push_back(row);
 		  }
 		  count++;
 	  }
