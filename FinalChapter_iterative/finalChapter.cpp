@@ -187,7 +187,8 @@ std::vector<std::vector<float> > raw_spiral_reader(const std::string& filename) 
 		// [0,1,2,3,4,5] = tensor data, [6,7,8] = x,y,z
 		
 	std::string line;
-	std::ifstream csvfile("../dt-helix.raw");
+	//std::ifstream csvfile("../dt-helix.raw");
+	std::ifstream csvfile(filename);
 	int count = 0;
 	if(csvfile.is_open()) {
 		int file_size = 7*38*39*40; // x=38,y=39,z=40, tensor=7 (first value indicates relevance)
@@ -289,7 +290,8 @@ std::vector<std::vector<float> > pipe_tensors(const std::string& filename) {
 	std::vector<std::vector<float> > tensors;
 	
   std::string line;
-  std::ifstream csvfile("../tensor.csv");
+  //std::ifstream csvfile("../tensor.csv");
+  std::ifstream csvfile(filename);
   int count =0; // This is just to limit the amount of the file we read for testing
   if(csvfile.is_open()){
 	  //while(csvfile.good()? 
@@ -359,12 +361,12 @@ optix::Group createScene(const std::string& filename)
   
   // Get spiral vector tensors. 
   // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
-	std::vector<std::vector<float> > tensors2 = raw_spiral_reader();
+	std::vector<std::vector<float> > tensors2 = raw_spiral_reader(filename);
 	//std::cout<<"Tensor vector length="<<tensors2.size();
 
 	// Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
-	//std::vector<std::vector<float> > tensors = pipe_tensors();
+	//std::vector<std::vector<float> > tensors = pipe_tensors(filename);
 	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
 	
 	// **** Work on this
@@ -583,6 +585,7 @@ int main(int argc, char **argv)
 
   // create the world to render
   //optix::GeometryGroup world = createScene();
+  //"../dt-helix.raw";
   optix::Group world = createScene(std::string(argv[1]));
   g_context["world"]->set(world);
 
