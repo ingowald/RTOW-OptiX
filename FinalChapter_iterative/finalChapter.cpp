@@ -361,16 +361,16 @@ optix::Group createScene(const std::string& filename)
   
   // Get spiral vector tensors. 
   // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
-	std::vector<std::vector<float> > tensors2 = raw_spiral_reader(filename);
+	//std::vector<std::vector<float> > tensors2 = raw_spiral_reader(filename);
 	//std::cout<<"Tensor vector length="<<tensors2.size();
 
 	// Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
-	//std::vector<std::vector<float> > tensors = pipe_tensors(filename);
+	std::vector<std::vector<float> > tensors = pipe_tensors(filename);
 	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
 	
 	// **** Work on this
-	if(tensors2.size()>0){
+	if(tensors.size()>0){
 		for(std::vector<std::vector<float> >::iterator it = tensors2.begin(); it != tensors2.end(); it++) {
 			std::vector<float> row = *it;
 			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 10 items long
@@ -378,7 +378,18 @@ optix::Group createScene(const std::string& filename)
 			// Create the shape and add it to the list
 			//vec3f center(row[9],row[10],row[11]);
 			vec3f center(row[7],row[8],row[9]);
-			t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
+			optix::Matrix3x3 tensor;
+			tensorpart = optix::Matrix3x3::identity();
+			for (int i=0; i < 9; i++){
+				tensorpart[i] = row[i];
+				//printf("%f %f %f\n%f %f %f\n%f %f %f\n",row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]);
+				//std::cout << " ********* " << std::endl;
+			}
+			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
+
+				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
+			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+			//t_list.push_back(createSphereXform(center,0.2f,ggDiffuse));
 		}
 	}
   // --------------Uplift this code later to main()-------
