@@ -2,4 +2,5 @@
 build
 tags
 */tags
-
+.ccls-cache
+.ipynb_checkpoints/*
