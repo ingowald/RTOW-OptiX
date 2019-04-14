@@ -388,6 +388,8 @@ int main(int argc, char **argv)
   std::cout << "Loading config, in YAML format, at: " << config_file_name << std::endl;
   YAML::Node config = YAML::LoadFile(config_file_name);
   const float fovy = config["camera"]["fovy"].as<float>(); 
+  const float aperture = config["camera"]["aperture"].as<float>(); 
+  const float dist_to_focus = config["camera"]["dist_to_focus"].as<float>(); 
 
   YAML::Node cam_pos = config["camera"]["position"];
   assert(cam_pos.IsSequence());
@@ -407,6 +409,8 @@ int main(int argc, char **argv)
   std::cout << "Lookat position:" << lookat.x << " " << lookat.y << " " << lookat.z << " " << std::endl;
   std::cout << "Up direction:" << up.x << " " << up.y << " " << up.z << " " << std::endl;
   std::cout << "Field of view (y), degrees: " << fovy << std::endl;
+  std::cout << "Aperture: " << aperture << std::endl;
+  std::cout << "Dist to focus: " << dist_to_focus << std::endl;
   std::cout << "Data file: " << data_file << std::endl;
   
   //exit(0);
@@ -434,11 +438,11 @@ int main(int argc, char **argv)
   //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ up, //vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),
-                /* fovy, in degrees */ 30, //fovy, 
+                /* up */ up, 
+                /* fovy, in degrees */ fovy, 
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ 0.01f, //0.01f
-                /* dist to focus: */ 1.0f);
+                /* aperture */ aperture, 
+                /* dist to focus: */ dist_to_focus);
   camera.set();
 
   // set the ray generation and miss shader program
