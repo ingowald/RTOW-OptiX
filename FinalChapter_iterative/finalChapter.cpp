@@ -96,7 +96,7 @@ struct WhittedLambertian : public Material {
   virtual void assignTo(optix::GeometryInstance gi) const override {
     optix::Material mat = g_context->createMaterial();
     mat->setClosestHitProgram(0, g_context->createProgramFromPTXString
-                              (embedded_lambertian_programs,
+                              (embedded_whitted_lambertian_programs,
                                "closest_hit"));
     gi->setMaterial(/*ray type:*/0, mat);
     gi["albedo"]->set3fv(&albedo.x);

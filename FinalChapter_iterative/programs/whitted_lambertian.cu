@@ -39,36 +39,42 @@ rtDeclareVariable(float3, albedo, , );
 /*! the actual scatter function - in Pete's reference code, that's a
   virtual function, but since we have a different function per program
   we do not need this here */
-inline __device__ bool scatter(const optix::Ray &ray_in,
-                               DRand48 &rndState,
-                               vec3f &scattered_origin,
-                               vec3f &scattered_direction,
-                               vec3f &attenuation)
-{
-  float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
-  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
-
-  vec3f target
-    = hit_pt_world + normal_world + random_in_unit_sphere(rndState);
-
-  // return scattering event
-  scattered_origin    = hit_pt_world;
-  scattered_direction = (target-hit_pt_world);
-  attenuation         = albedo;
-  return true;
-}
+/*
+ *inline __device__ bool scatter(const optix::Ray &ray_in,
+ *                               DRand48 &rndState,
+ *                               vec3f &scattered_origin,
+ *                               vec3f &scattered_direction,
+ *                               vec3f &attenuation)
+ *{
+ *  float3 hit_pt_world = rtTransformPoint(RT_OBJECT_TO_WORLD, hit_rec_p);
+ *  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+ *
+ *  vec3f target
+ *    = hit_pt_world + normal_world + random_in_unit_sphere(rndState);
+ *
+ *  // return scattering event
+ *  scattered_origin    = hit_pt_world;
+ *  scattered_direction = (target-hit_pt_world);
+ *  attenuation         = albedo;
+ *  return true;
+ *}
+ */
 
 RT_PROGRAM void closest_hit()
 {
 
-   float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal)); //debug ONLY
-   prd.out.normal = normal_world; //for debug ONLY
-   prd.out.scatterEvent
-    = scatter(ray,
-              *prd.in.randState,
-              prd.out.scattered_origin,
-              prd.out.scattered_direction,
-              prd.out.attenuation)
-    ? rayGotBounced
-    : rayGotCancelled;
+   float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+   prd.out.normal = normal_world; 
+   prd.out.scatterEvent = rayHitWhittedDiffuse;
+   prd.out.attenuation = albedo;
+   /*
+    *prd.out.scatterEvent
+    * = scatter(ray,
+    *           *prd.in.randState,
+    *           prd.out.scattered_origin,
+    *           prd.out.scattered_direction,
+    *           prd.out.attenuation)
+    * ? rayGotBounced
+    * : rayGotCancelled;
+    */
 }
