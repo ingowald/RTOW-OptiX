@@ -434,7 +434,7 @@ int main(int argc, char **argv)
   //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//up,
+                /* up */ up, //vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),
                 /* fovy, in degrees */ 30, //fovy, 
                 /* aspect */ float(Nx) / float(Ny),
                 /* aperture */ 0.01f, //0.01f
