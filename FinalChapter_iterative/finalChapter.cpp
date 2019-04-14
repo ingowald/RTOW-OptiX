@@ -38,6 +38,9 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <stdexcept>
+
+enum class Algo { whitted, pathtracing };
 
 optix::Context g_context;
 
@@ -192,10 +195,19 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
   return trSphere;
 }
 
-optix::Group createScene(const std::string& filename)
+optix::Group createScene(const std::string& filename, const Algo algo)
 { 
   //Pre-create one geometry instance per material. 
-  optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  //optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  optix::GeometryInstance giDiffuseSphere;
+  if( algo == Algo::pathtracing ){
+    giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  } else if ( algo == Algo::whitted ) {
+    giDiffuseSphere = createUnitSphere(WhittedLambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  } else {
+    throw std::invalid_argument("Unsupported algorithm!");
+  }
+
   optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
   optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
 
@@ -383,8 +395,9 @@ void setMissProgram()
 
 int main(int argc, char **argv)
 {
-  if(argc != 2){ 
-    std::cout << "Usage: ./finalChapter_iterative <config_file>.yaml" << std::endl;
+  if(argc != 3){ 
+    std::cout << "Usage: ./finalChapter_iterative <config_file>.yaml [whitted | pathtracing]" << std::endl;
+    std::cout << "(The third argument should be either 'whitted' or 'pathtracing'"<< std::endl;
     exit(1);
   }
 
@@ -394,6 +407,20 @@ int main(int argc, char **argv)
   //const float nan = std::numeric_limits<float>::quiet_NaN();
   //float fovy = nan; 
   //vec3f cam_pos(NAN);
+  
+  std::string render_algo_str(argv[2]);
+  Algo render_algo;
+  if(render_algo_str.compare("whitted") == 0 ){
+    render_algo = Algo::whitted;
+  } else if ( render_algo_str.compare("pathtracing") == 0 ) {
+    render_algo = Algo::pathtracing;
+  } else {
+    std::cout << "Invalid rendering algorithm!" << std::endl;
+    exit(1);
+  }
+  //Todo: set enum based on wehther render_algo is "whitted" or "pathtracing"
+  //Later on, in CreateScene, choose between Lambertian or WhittedLambertian as the diffuse material
+  //depending on what the enum is.
 
   std::string config_file_name = std::string(argv[1]);
   size_t config_fname_len = config_file_name.length();
@@ -431,13 +458,6 @@ int main(int argc, char **argv)
   std::cout << "Dist to focus: " << dist_to_focus << std::endl;
   std::cout << "Data file: " << data_file << std::endl;
   
-  //exit(0);
-
-  if(argc != 2){ //OLD CODE! 
-    std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
-    exit(1);
-  }
-
   // before doing anything else: create a optix context
   g_context = optix::Context::create();
   g_context->setRayTypeCount(1);
@@ -474,10 +494,16 @@ int main(int argc, char **argv)
   // create the world to render
   //optix::GeometryGroup world = createScene();
   //optix::Group world = createScene(std::string(argv[1]));
-  optix::Group world = createScene(data_file); //FIXME: This is a HACK!
+  optix::Group world = createScene(data_file, render_algo); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
-  const int numSamples = 128;
+  //const int numSamples = 128;
+  int numSamples;
+  if( render_algo == Algo::whitted ) {
+    numSamples = 1; 
+  } else {
+    numSamples = 128;
+  }
   g_context["numSamples"]->setInt(numSamples);
 
 #if 1
