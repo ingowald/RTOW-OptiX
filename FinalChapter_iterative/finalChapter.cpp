@@ -479,7 +479,7 @@ int main(int argc, char **argv)
                 /* up */ up, 
                 /* fovy, in degrees */ fovy, 
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ aperture, 
+                /* aperture */ (render_algo == Algo::whitted) ? 0.0 : aperture,//aperture, 
                 /* dist to focus: */ dist_to_focus);
   camera.set();
 
