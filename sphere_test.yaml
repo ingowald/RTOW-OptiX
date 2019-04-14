@@ -1,0 +1,9 @@
+camera:
+  fovy: 30.0
+  position: [0.0, 0.0, 4.0]
+  lookat: [0.0, 0.0, 0.0]
+  up: [0.0, 1.0, 1.0]
+  aperture: 0.0
+  dist_to_focus: 4.0 
+data_file: "../single_sphere.csv" #Path relative to executable
+data_scale: 1.0 

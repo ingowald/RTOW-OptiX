@@ -6,3 +6,4 @@ camera:
   aperture: 0.01
   dist_to_focus: 1.0 
 data_file: "../tensor.csv" #Path relative to executable
+data_scale: 0.00031858246990541144 #to match my ParaView setup

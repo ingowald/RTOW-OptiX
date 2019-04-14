@@ -88,7 +88,11 @@ inline __device__ vec3f color(optix::Ray &ray, DRand48 &rnd)
     else if (prd.out.scatterEvent == rayGotCancelled)
       return vec3f(0.f);
 
-    else { // ray is still alive, and got properly bounced
+    else if (prd.out.scatterEvent == rayHitWhittedDiffuse ){
+      vec3f lightDir = 1.f; //HACK. 
+      float dotProd = optix::clamp(dot(lightDir, prd.out.normal),0.0f,1.0f);
+      return prd.out.attenuation * dotProd; 
+    } else { // ray is still alive, and got properly bounced
       attenuation *= prd.out.attenuation;
       ray = optix::make_Ray(prd.out.scattered_origin.as_float3(),
                             prd.out.scattered_direction.as_float3(),
