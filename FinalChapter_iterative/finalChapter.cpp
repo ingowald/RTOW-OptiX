@@ -20,6 +20,9 @@
 // optix
 #include <optix.h>
 #include <optixu/optixpp.h>
+#include <optixu/optixu_matrix_namespace.h>
+//yaml (for parsing config file)
+#include <yaml-cpp/yaml.h>
 // std
 #define _USE_MATH_DEFINES 1
 #include <math.h>
@@ -32,9 +35,9 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <vector>
-#include <optixu/optixu_matrix_namespace.h>
-
+#include <limits>
 
 optix::Context g_context;
 
@@ -362,8 +365,57 @@ void setMissProgram()
 
 int main(int argc, char **argv)
 {
+  if(argc != 2){ 
+    std::cout << "Usage: ./finalChapter_iterative <config_file>.yaml" << std::endl;
+    exit(1);
+  }
 
-  if(argc != 2){
+  //Initialize floating-point valuse to NaNs instead of leaving them
+  //uninitialized. Since NaN's propagate, this makes the program easier to
+  //debug if we are using an uninitialized value somewhere we shouldn't.
+  //const float nan = std::numeric_limits<float>::quiet_NaN();
+  //float fovy = nan; 
+  //vec3f cam_pos(NAN);
+
+  std::string config_file_name = std::string(argv[1]);
+  size_t config_fname_len = config_file_name.length();
+  std::string ext(".yaml");
+  if( config_fname_len < ext.length() || config_file_name.compare(config_fname_len - ext.length(),ext.length(), ext) != 0 ){
+    std::cout << "Input must be a .yaml file!" << std::endl;
+    exit(1);
+  }
+
+  std::cout << "Loading config, in YAML format, at: " << config_file_name << std::endl;
+  YAML::Node config = YAML::LoadFile(config_file_name);
+  const float fovy = config["camera"]["fovy"].as<float>(); 
+  const float aperture = config["camera"]["aperture"].as<float>(); 
+  const float dist_to_focus = config["camera"]["dist_to_focus"].as<float>(); 
+
+  YAML::Node cam_pos = config["camera"]["position"];
+  assert(cam_pos.IsSequence());
+  const vec3f lookfrom(cam_pos[0].as<float>(), cam_pos[1].as<float>(), cam_pos[2].as<float>());
+
+  YAML::Node lookat_pos = config["camera"]["lookat"];
+  assert(lookat_pos.IsSequence());
+  const vec3f lookat(lookat_pos[0].as<float>(), lookat_pos[1].as<float>(), lookat_pos[2].as<float>());
+
+  YAML::Node up_dir = config["camera"]["up"];
+  assert(up_dir.IsSequence());
+  const vec3f up(up_dir[0].as<float>(), up_dir[1].as<float>(), up_dir[2].as<float>());
+
+  const std::string data_file = config["data_file"].as<std::string>();
+
+  std::cout << "Camera position: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
+  std::cout << "Lookat position:" << lookat.x << " " << lookat.y << " " << lookat.z << " " << std::endl;
+  std::cout << "Up direction:" << up.x << " " << up.y << " " << up.z << " " << std::endl;
+  std::cout << "Field of view (y), degrees: " << fovy << std::endl;
+  std::cout << "Aperture: " << aperture << std::endl;
+  std::cout << "Dist to focus: " << dist_to_focus << std::endl;
+  std::cout << "Data file: " << data_file << std::endl;
+  
+  //exit(0);
+
+  if(argc != 2){ //OLD CODE! 
     std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
     exit(1);
   }
@@ -382,15 +434,15 @@ int main(int argc, char **argv)
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
 
-  const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
-  const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
+  //const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
+  //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//vec3f(0, 1, 0),
-                /* fovy, in degrees */ 30, //20.0,
+                /* up */ up, 
+                /* fovy, in degrees */ fovy, 
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ 0.01f, //0.01f
-                /* dist to focus: */ 1.0f);
+                /* aperture */ aperture, 
+                /* dist to focus: */ dist_to_focus);
   camera.set();
 
   // set the ray generation and miss shader program
@@ -403,7 +455,8 @@ int main(int argc, char **argv)
 
   // create the world to render
   //optix::GeometryGroup world = createScene();
-  optix::Group world = createScene(std::string(argv[1]));
+  //optix::Group world = createScene(std::string(argv[1]));
+  optix::Group world = createScene(data_file); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
   const int numSamples = 128;
