@@ -195,7 +195,7 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
   return trSphere;
 }
 
-optix::Group createScene(const std::string& filename, const Algo algo)
+optix::Group createScene(const std::string& filename, const Algo algo, const float data_scale)
 { 
   //Pre-create one geometry instance per material. 
   //optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
@@ -274,7 +274,7 @@ optix::Group createScene(const std::string& filename, const Algo algo)
         optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensor + tensor.transpose());
 
 				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
-        t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+        t_list.push_back(createSphereXform(center, symmetrized_tensor, data_scale, ggDiffuse));
 		  }
 		  count++;
 	  }
@@ -435,6 +435,7 @@ int main(int argc, char **argv)
   const float fovy = config["camera"]["fovy"].as<float>(); 
   const float aperture = config["camera"]["aperture"].as<float>(); 
   const float dist_to_focus = config["camera"]["dist_to_focus"].as<float>(); 
+  const float data_scale = config["data_scale"].as<float>();
 
   YAML::Node cam_pos = config["camera"]["position"];
   assert(cam_pos.IsSequence());
@@ -482,6 +483,9 @@ int main(int argc, char **argv)
                 /* aperture */ (render_algo == Algo::whitted) ? 0.0 : aperture,//aperture, 
                 /* dist to focus: */ dist_to_focus);
   camera.set();
+  if(render_algo == Algo::whitted){
+    std::cout << "DoF disabled because we are using Whitted-style raytracing. 'aperture' has no effect!" << std::endl;
+  }
 
   // set the ray generation and miss shader program
   setRayGenProgram();
@@ -494,7 +498,7 @@ int main(int argc, char **argv)
   // create the world to render
   //optix::GeometryGroup world = createScene();
   //optix::Group world = createScene(std::string(argv[1]));
-  optix::Group world = createScene(data_file, render_algo); //FIXME: This is a HACK!
+  optix::Group world = createScene(data_file, render_algo, data_scale); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
   //const int numSamples = 128;
