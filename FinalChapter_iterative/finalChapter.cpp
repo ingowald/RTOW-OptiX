@@ -51,6 +51,7 @@ extern "C" const char embedded_miss_program[];
 extern "C" const char embedded_metal_programs[];
 extern "C" const char embedded_dielectric_programs[];
 extern "C" const char embedded_lambertian_programs[];
+extern "C" const char embedded_whitted_lambertian_programs[];
 
 float rnd()
 {
@@ -71,6 +72,23 @@ struct Material {
 struct Lambertian : public Material {
   /*! constructor */
   Lambertian(const vec3f &albedo) : albedo(albedo) {}
+  /* create optix material, and assign mat and mat values to geom instance */
+  virtual void assignTo(optix::GeometryInstance gi) const override {
+    optix::Material mat = g_context->createMaterial();
+    mat->setClosestHitProgram(0, g_context->createProgramFromPTXString
+                              (embedded_lambertian_programs,
+                               "closest_hit"));
+    gi->setMaterial(/*ray type:*/0, mat);
+    gi["albedo"]->set3fv(&albedo.x);
+  }
+  const vec3f albedo;
+};
+
+/*! host side code for the "WhittedLambertian" material; the actual
+  sampling code is in the programs/whitted_lambertian.cu closest hit program */
+struct WhittedLambertian : public Material {
+  /*! constructor */
+  WhittedLambertian(const vec3f &albedo) : albedo(albedo) {}
   /* create optix material, and assign mat and mat values to geom instance */
   virtual void assignTo(optix::GeometryInstance gi) const override {
     optix::Material mat = g_context->createMaterial();

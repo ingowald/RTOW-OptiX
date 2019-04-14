@@ -54,6 +54,13 @@ public:
 	vec3 albedo;
 };
 
+class whitted_lambertian : public material {
+public:
+	__device__ whitted_lambertian(const vec3& a) : albedo(a) {}
+
+	vec3 albedo;
+};
+
 class metal : public material {
 public:
 	__device__ metal(const vec3& a, float f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }

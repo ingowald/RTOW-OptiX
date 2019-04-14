@@ -25,7 +25,9 @@ typedef enum {
   /*! ray could not get scattered, and should get cancelled */
   rayGotCancelled,
   /*! ray didn't hit anything, and went into the environemnt */
-  rayDidntHitAnything
+  rayDidntHitAnything,
+  /*! ray hit a Whitted diffuse material. sample the light and terminate. */
+  rayHitWhittedDiffuse
 } ScatterEvent;
 
 /*! "per ray data" (PRD) for our sample's rays. In the simple example, there is only
