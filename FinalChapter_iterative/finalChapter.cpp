@@ -388,12 +388,26 @@ int main(int argc, char **argv)
   std::cout << "Loading config, in YAML format, at: " << config_file_name << std::endl;
   YAML::Node config = YAML::LoadFile(config_file_name);
   const float fovy = config["camera"]["fovy"].as<float>(); 
+
   YAML::Node cam_pos = config["camera"]["position"];
   assert(cam_pos.IsSequence());
   const vec3f lookfrom(cam_pos[0].as<float>(), cam_pos[1].as<float>(), cam_pos[2].as<float>());
 
-  std::cout << "cam pos: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
-  std::cout << "fovy: " << fovy << std::endl;
+  YAML::Node lookat_pos = config["camera"]["lookat"];
+  assert(lookat_pos.IsSequence());
+  const vec3f lookat(lookat_pos[0].as<float>(), lookat_pos[1].as<float>(), lookat_pos[2].as<float>());
+
+  YAML::Node up_dir = config["camera"]["up"];
+  assert(up_dir.IsSequence());
+  const vec3f up(up_dir[0].as<float>(), up_dir[1].as<float>(), up_dir[2].as<float>());
+
+  const std::string data_file = config["data_file"].as<std::string>();
+
+  std::cout << "Camera position: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
+  std::cout << "Lookat position:" << lookat.x << " " << lookat.y << " " << lookat.z << " " << std::endl;
+  std::cout << "Up direction:" << up.x << " " << up.y << " " << up.z << " " << std::endl;
+  std::cout << "Field of view (y), degrees: " << fovy << std::endl;
+  std::cout << "Data file: " << data_file << std::endl;
   
   //exit(0);
 
@@ -417,11 +431,11 @@ int main(int argc, char **argv)
   //const vec3f lookat(0, 0, 0);
 
   //const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
-  const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
+  //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//vec3f(0, 1, 0),
-                /* fovy, in degrees */ 30, //20.0,
+                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//up,
+                /* fovy, in degrees */ 30, //fovy, 
                 /* aspect */ float(Nx) / float(Ny),
                 /* aperture */ 0.01f, //0.01f
                 /* dist to focus: */ 1.0f);
@@ -438,7 +452,7 @@ int main(int argc, char **argv)
   // create the world to render
   //optix::GeometryGroup world = createScene();
   //optix::Group world = createScene(std::string(argv[1]));
-  optix::Group world = createScene("../tensor.csv"); //FIXME: This is a HACK!
+  optix::Group world = createScene(data_file); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
   const int numSamples = 128;
