@@ -5,8 +5,8 @@ camera:
   up: [0.6437328837528422, -0.7215645820362587, -0.2548578590628296]
   aperture: 0.01
   dist_to_focus: 1.0 
-#data_file: "../tensor.csv" #Path relative to executable
-data_file: "../processed_tensor.csv" 
-#data_scale: 0.00031858246990541144 #to match my ParaView setup
-data_scale: 0.1
+data_file: "../tensor.csv" #Path relative to executable
+#data_file: "../processed_tensor.csv" 
+data_scale: 0.00031858246990541144 #to match my ParaView setup
+#data_scale: 1.0
 light_dir: [-0.7582404650616285, -0.5564499244157213, -0.33975708787435704]
