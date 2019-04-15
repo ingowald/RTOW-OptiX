@@ -40,6 +40,9 @@ rtDeclareVariable(PerRayData, prd, rtPayload, );
 // the reference code used.
 RT_PROGRAM void hit_sphere(int pid)
 {
+  // See Ch. 7: Precision Improvements for Ray/Sphere Intersection
+  // p.87 of Ray Tracing Gems, edited by Eric Haines and Tomas Akenine-Moller, Apress 2019.
+  // http://www.realtimerendering.com/raytracinggems/
   const float3 d = ray.direction;
   const float3 f = ray.origin - center; //TODO: center assumed to be zero, we can simplify this
   const float  a = dot(d, d);
@@ -70,33 +73,6 @@ RT_PROGRAM void hit_sphere(int pid)
       rtReportIntersection(0);
     }
   }
-
-/*
- *  const float3 oc = ray.origin - center;
- *  const float  a = dot(ray.direction, ray.direction);
- *  const float  b = dot(oc, ray.direction);
- *  const float  c = dot(oc, oc) - radius * radius;
- *  const float  discriminant = b * b - a * c;
- *  
- *  if (discriminant < 0.f) return;
- *
- *  float temp = (-b - sqrtf(discriminant)) / a;
- *  if (temp < ray.tmax && temp > ray.tmin) {
- *    if (rtPotentialIntersection(temp)) {
- *      hit_rec_p = ray.origin + temp * ray.direction;
- *      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
- *      rtReportIntersection(0);
- *    }
- *  }
- *  temp = (-b + sqrtf(discriminant)) / a;
- *  if (temp < ray.tmax && temp > ray.tmin) {
- *    if (rtPotentialIntersection(temp)) {
- *      hit_rec_p = ray.origin + temp * ray.direction;
- *      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
- *      rtReportIntersection(0);
- *    }
- *  }
- */
 }
 
 /*! returns the bounding box of the pid'th primitive
