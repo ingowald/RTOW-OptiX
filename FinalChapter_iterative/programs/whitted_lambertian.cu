@@ -63,10 +63,11 @@ rtDeclareVariable(float3, albedo, , );
 RT_PROGRAM void closest_hit()
 {
 
-   float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
-   prd.out.normal = normal_world; 
-   prd.out.scatterEvent = rayHitWhittedDiffuse;
-   prd.out.attenuation = albedo;
+   /*float3 normal_world = hit_rec_normal; */
+  float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal));
+  prd.out.normal = normal_world; 
+  prd.out.scatterEvent = rayHitWhittedDiffuse;
+  prd.out.attenuation = albedo;
    /*
     *prd.out.scatterEvent
     * = scatter(ray,

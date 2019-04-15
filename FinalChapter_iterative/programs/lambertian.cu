@@ -61,8 +61,8 @@ inline __device__ bool scatter(const optix::Ray &ray_in,
 RT_PROGRAM void closest_hit()
 {
 
-   float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal)); //debug ONLY
-   prd.out.normal = normal_world; //for debug ONLY
+   /*float3 normal_world = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD, hit_rec_normal)); //debug ONLY*/
+   /*prd.out.normal = normal_world; //for debug ONLY*/
    prd.out.scatterEvent
     = scatter(ray,
               *prd.in.randState,
