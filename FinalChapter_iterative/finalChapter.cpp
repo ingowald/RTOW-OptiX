@@ -185,6 +185,10 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
     radius*upperLeft[6], radius*upperLeft[7], radius*upperLeft[8], center.z,
     0.0f,   0.0f,   0.0f,   1.0f                                 
   };                                                              
+
+  //printf("%f %f %f\n%f %f %f\n%f %f %f\n",sphereMatRaw[0],sphereMatRaw[1],sphereMatRaw[2],sphereMatRaw[4],sphereMatRaw[5],sphereMatRaw[6],sphereMatRaw[8],sphereMatRaw[9],sphereMatRaw[10]);
+  //printf("Center: %f %f %f\n", center.x, center.y, center.z);
+
   optix::Matrix4x4 matrixSphere(sphereMatRaw);   
   optix::Transform trSphere = g_context->createTransform();
   trSphere->setMatrix(false, matrixSphere.getData(),
@@ -448,12 +452,18 @@ int main(int argc, char **argv)
   YAML::Node up_dir = config["camera"]["up"];
   assert(up_dir.IsSequence());
   const vec3f up(up_dir[0].as<float>(), up_dir[1].as<float>(), up_dir[2].as<float>());
+  
+  YAML::Node light_dir_node = config["light_dir"];
+  assert(light_dir_node.IsSequence());
+  vec3f light_dir(light_dir_node[0].as<float>(), light_dir_node[1].as<float>(), light_dir_node[2].as<float>());
+  light_dir = light_dir/light_dir.length(); //normalize
 
   const std::string data_file = config["data_file"].as<std::string>();
 
   std::cout << "Camera position: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
   std::cout << "Lookat position:" << lookat.x << " " << lookat.y << " " << lookat.z << " " << std::endl;
   std::cout << "Up direction:" << up.x << " " << up.y << " " << up.z << " " << std::endl;
+  std::cout << "Light dir:" << light_dir.x << " " << light_dir.y << " " << light_dir.z << " " << std::endl;
   std::cout << "Field of view (y), degrees: " << fovy << std::endl;
   std::cout << "Aperture: " << aperture << std::endl;
   std::cout << "Dist to focus: " << dist_to_focus << std::endl;
@@ -486,6 +496,8 @@ int main(int argc, char **argv)
   if(render_algo == Algo::whitted){
     std::cout << "DoF disabled because we are using Whitted-style raytracing. 'aperture' has no effect!" << std::endl;
   }
+
+  g_context["light_dir"]->set3fv(&light_dir.x);
 
   // set the ray generation and miss shader program
   setRayGenProgram();

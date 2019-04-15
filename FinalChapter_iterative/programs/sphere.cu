@@ -40,32 +40,63 @@ rtDeclareVariable(PerRayData, prd, rtPayload, );
 // the reference code used.
 RT_PROGRAM void hit_sphere(int pid)
 {
-  const float3 oc = ray.origin - center;
-  const float  a = dot(ray.direction, ray.direction);
-  const float  b = dot(oc, ray.direction);
-  const float  c = dot(oc, oc) - radius * radius;
-  const float  discriminant = b * b - a * c;
+  const float3 d = ray.direction;
+  const float3 f = ray.origin - center; //TODO: center assumed to be zero, we can simplify this
+  const float  a = dot(d, d);
+  const float  b_prime = dot(-f, d);
+  const float  r = radius;  //TODO: radius assumed to be one, we can simplify this
+  const float3  l = f + (b_prime/a)*d; //not sure this is actually equivalent to l in the text?
+  const float  discriminant = r*r - dot(l,l);
   
   if (discriminant < 0.f) return;
 
-  float temp = (-b - sqrtf(discriminant)) / a;
-  if (temp < ray.tmax && temp > ray.tmin) {
-    if (rtPotentialIntersection(temp)) {
-      hit_rec_p = ray.origin + temp * ray.direction;
-      /*hit_rec_normal = (hit_rec_p - center) / radius;*/
+  float c = dot(f,f) - r*r;
+  float q = b_prime + copysignf(sqrt(a*discriminant),b_prime);
+
+  float t0 = c/q; 
+  if (t0 < ray.tmax && t0 > ray.tmin) {
+    if (rtPotentialIntersection(t0)) {
+      hit_rec_p = ray.origin + t0 * ray.direction;
       hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
       rtReportIntersection(0);
     }
   }
-  temp = (-b + sqrtf(discriminant)) / a;
-  if (temp < ray.tmax && temp > ray.tmin) {
-    if (rtPotentialIntersection(temp)) {
-      hit_rec_p = ray.origin + temp * ray.direction;
-      /*hit_rec_normal = (hit_rec_p - center) / radius;*/
+
+  float t1 = q/a;
+  if (t1 < ray.tmax && t1 > ray.tmin) {
+    if (rtPotentialIntersection(t1)) {
+      hit_rec_p = ray.origin + t1 * ray.direction;
       hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
       rtReportIntersection(0);
     }
   }
+
+/*
+ *  const float3 oc = ray.origin - center;
+ *  const float  a = dot(ray.direction, ray.direction);
+ *  const float  b = dot(oc, ray.direction);
+ *  const float  c = dot(oc, oc) - radius * radius;
+ *  const float  discriminant = b * b - a * c;
+ *  
+ *  if (discriminant < 0.f) return;
+ *
+ *  float temp = (-b - sqrtf(discriminant)) / a;
+ *  if (temp < ray.tmax && temp > ray.tmin) {
+ *    if (rtPotentialIntersection(temp)) {
+ *      hit_rec_p = ray.origin + temp * ray.direction;
+ *      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
+ *      rtReportIntersection(0);
+ *    }
+ *  }
+ *  temp = (-b + sqrtf(discriminant)) / a;
+ *  if (temp < ray.tmax && temp > ray.tmin) {
+ *    if (rtPotentialIntersection(temp)) {
+ *      hit_rec_p = ray.origin + temp * ray.direction;
+ *      hit_rec_normal = optix::normalize(rtTransformNormal(RT_OBJECT_TO_WORLD,(hit_rec_p - center) / radius));
+ *      rtReportIntersection(0);
+ *    }
+ *  }
+ */
 }
 
 /*! returns the bounding box of the pid'th primitive
