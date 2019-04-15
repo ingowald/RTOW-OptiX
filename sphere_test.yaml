@@ -7,3 +7,4 @@ camera:
   dist_to_focus: 4.0 
 data_file: "../single_sphere.csv" #Path relative to executable
 data_scale: 1.0 
+light_dir: [0.0, 0.0, -1.0]
