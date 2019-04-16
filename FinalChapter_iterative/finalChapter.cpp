@@ -229,7 +229,7 @@ std::vector<std::vector<float> > read_csv_tensors(const std::string& filename) {
 			  while(ss.good()){
 				  getline(ss,substr,',');
 				  //double temp = ::atof(substr.c_str());
-				  float temp = ::strtof(substr.c_str());
+				  float temp = ::strtof(substr.c_str(),null);
 				  row.push_back((float)temp);
 			  }
 			  //float x,y,z;
