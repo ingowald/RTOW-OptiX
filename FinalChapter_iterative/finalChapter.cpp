@@ -204,116 +204,10 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
   return trSphere;
 }
 
-// ----------------------File-reading functions -----------------------------------------
-// All of these return a vector of vectors
-
-// Returns a list of tensors. Each tensor has the 6 parts of a symmetric tensor and the corresponding x,y,z location of the tensor.
-// Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z
-std::vector<std::vector<float> > raw_spiral_reader(const std::string& filename) {
-		std::vector<std::vector<float> > tensors;
-		// [0,1,2,3,4,5] = tensor data, [6,7,8] = x,y,z
-		
-	std::string line;
-	//std::ifstream csvfile("../dt-helix.raw");
-	std::ifstream csvfile(filename);
-	int count = 0;
-	if(csvfile.is_open()) {
-		int file_size = 7*38*39*40; // x=38,y=39,z=40, tensor=7 (first value indicates relevance)
-		u_char *pos;
-		raw_float rf;
-		raw_float rfrev;
-		//t=410412  // This is the total number of floats in the file. The thing is, it's less than the original number by approximately 4500
-		//count=1641647 count/4=410411, file size=414960=7*38*39*40, total size in char=3319680
-		u_char temp;
-		// 1=confidence,2 Dxx, 3 Dxy, 4 Dxz, 5 Dyy, 6 Dyz, 7 Dzz
-		//t changes the fastest, then x is fast, y is medium, and z is slow.
-		int x,y,z,t;
-		x=0;
-		y=0;
-		z=0;
-		t=0;
-		//axis mins:  NaN -2 -2 -2
-		//axis maxs:  NaN 2 2 2
-		int t_len = 7;
-		int x_len = 38; // x/9.5 - 2 
-		int y_len = 39; // y/9.75 - 2
-		int z_len = 40; // z*0.1 - 2
-		double zd,yd,xd;
-		//while(count<200) {
-		float tensor[7];
-		while(!csvfile.eof()){//csvfile.good()){
-			csvfile>>temp;
-			rf.buffer[3-(count%4)] = temp;
-			rfrev.buffer[count%4] = temp;
-			//printf("%.2x\n",temp);
-			if((count%4)==3){
-				tensor[t]=rf.number;
-				//tensor[t]=rfrev.number; // If it turns out we are doing things in the wrong direction, use rfrev.
-				//printf("z,y,x,t=%d,%d,%d,%d\n",z,y,x,t);
-				//printf("%f\n",rf.number);
-				//std::cout<<std::endl;
-				if(t==(t_len-1)){
-					zd=double(z)*0.1;//-2;
-					yd=double(y)/9.75;//-2;
-					xd=double(x)/9.75;//-2;
-					//printf("z,y,x,t=%f,%f,%f,%f\n",float(zd)-2,float(yd)-2,float(xd)-2);
-					// Create a shape using the tensor data we saved. 
-					// Only create it if t[0]>=0.5 && t[0]<=1.0
-					//printf("t[0]=%f\n",tensor[0]);
-					if(tensor[0]>=0.5&&tensor[0]<=1.0){
-						std::vector<float> tensor_data;
-						//tensor_data.push_back(tensor[0]);
-						tensor_data.push_back(tensor[1]);
-						tensor_data.push_back(tensor[2]);
-						tensor_data.push_back(tensor[3]);
-						tensor_data.push_back(tensor[4]);
-						tensor_data.push_back(tensor[5]);
-						tensor_data.push_back(tensor[6]);
-						// Now add the point data. Note: We may need to reverse the order of x and z possibly
-						tensor_data.push_back(float(xd)-2);
-						tensor_data.push_back(float(yd)-2);
-						tensor_data.push_back(float(zd)-2);
-						tensors.push_back(tensor_data);
-						
-					}
-				}
-				if(y==(y_len-1)&&x==(x_len-1)&&t==(t_len-1)){
-					t=0;
-					x=0;
-					y=0;
-					z++;
-				}
-				else if(x==(x_len-1)&&t==(t_len-1)) {
-					x=0;
-					t=0;
-					y++;
-				}
-				else if(t==(t_len-1)) {
-					t=0;
-					x++;
-				}
-				else{
-					t++;
-				}
-			}
-			count++;
-		}
-		//printf("t=%d\n",t);
-		//printf("count=%d count/4=%d, total size=%d, total size in char=%d\n",count-1, (count-1)/4,file_size,file_size*8);
-		csvfile.close();
-	}
-	else {
-		std::cout<<"Unable to open spiral helix file";
-	}
-	
-	return tensors;
-}
-
-
-
+// ----------------------File-reading function -----------------------------------------
 // Reads a tensor.csv file and returns the tensor data as a list
 // Each vector in the list of vectors has the data in the format Dxx,Dxy,Dxz,Dyx,Dyy,Dyz,Dzx,Dzy,Dzz,x,y,z
-std::vector<std::vector<float> > pipe_tensors(const std::string& filename) {
+std::vector<std::vector<float> > read_csv_tensors(const std::string& filename) {
 	std::vector<std::vector<float> > tensors;
 	
   std::string line;
@@ -334,10 +228,11 @@ std::vector<std::vector<float> > pipe_tensors(const std::string& filename) {
 			  ss<<line;
 			  while(ss.good()){
 				  getline(ss,substr,',');
-				  double temp = ::atof(substr.c_str());
+				  //double temp = ::atof(substr.c_str());
+				  float temp = ::strtof(substr.c_str());
 				  row.push_back((float)temp);
 			  }
-			  float x,y,z;
+			  //float x,y,z;
 			  tensors.push_back(row);
 		  }
 		  count++;
@@ -391,43 +286,14 @@ optix::Group createScene(const std::string& filename, const Algo algo, const flo
   // This is the plane the original balls rested on
   //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
   std::vector<std::vector<float> > tensors;
-  std::string filename1 = "../dt-helix.raw";
+  std::string filename1 = "../dt-helix.csv";
   if(filename.compare(filename1)==0){
-	  // Get spiral vector tensors. 
-  // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
-	tensors = raw_spiral_reader(filename);
-	//std::cout<<"Tensor vector length="<<tensors2.size();
-	// For use with spiral helix tensors
-	if(tensors.size()>0){
-		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
-			std::vector<float> row = *it;
-			// Create the shape and add it to the list
-			vec3f center(row[7],row[8],row[9]);
-			optix::Matrix3x3 tensorpart;
-			tensorpart = optix::Matrix3x3::identity();
-			tensorpart[0]=row[0]; // Dxx
-			tensorpart[1]=row[1]; // Dxy
-			tensorpart[2]=row[2]; // Dxz
-			tensorpart[3]=row[1]; // Dyx==Dxy
-			tensorpart[4]=row[3]; // Dyy
-			tensorpart[5]=row[4]; // Dyz
-			tensorpart[6]=row[2]; // Dzx=Dxz
-			tensorpart[7]=row[4]; // Dzy = Dyz
-			tensorpart[8]=row[5]; // Dzz
-			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
-			//optix::Matrix3x3 symmetrized_tensor = tensorpart;
-				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
-			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
-			//printf("Tensor added to the sphere list");
-		}
-	}
-	
+	printf("Reading the spiral helix now"); 
   }
-  // Treat it like a csv file
-  else {
+
 	  // Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
-	tensors = pipe_tensors(filename);
+	tensors = read_csv_tensors(filename);
 	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
 	// For use with pipe tensors
 	if(tensors.size()>0){
@@ -443,14 +309,14 @@ optix::Group createScene(const std::string& filename, const Algo algo, const flo
 			}
 			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
 
-				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
+			//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
 			//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
 			t_list.push_back(createSphereXform(center, symmetrized_tensor, data_scale, ggDiffuse));
 		}
 	}
         
 
-  }
+  
   
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
