@@ -353,11 +353,12 @@ optix::Group createScene(const std::string& filename)
   
   // This is the plane the original balls rested on
   //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
-  
-  // Get spiral vector tensors. 
+  std::vector<std::vector<float> > tensors;
+  std::string filename1 = "../dt-helix.raw";
+  if(filename.compare(filename1)==0){
+	  // Get spiral vector tensors. 
   // Data is in the order Dxx, Dxy, Dxz, Dyy, Dyz, Dzz, x, y, z. Each axis ranges from -2 to 2.
-  /*
-	std::vector<std::vector<float> > tensors = raw_spiral_reader(filename);
+	tensors = raw_spiral_reader(filename);
 	//std::cout<<"Tensor vector length="<<tensors2.size();
 	// For use with spiral helix tensors
 	if(tensors.size()>0){
@@ -383,27 +384,25 @@ optix::Group createScene(const std::string& filename)
 			//printf("Tensor added to the sphere list");
 		}
 	}
-	*/
 	
-	// Get the pipe tensors
+  }
+  // Treat it like a csv file
+  else {
+	  // Get the pipe tensors
 	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
-	std::vector<std::vector<float> > tensors = pipe_tensors(filename);
+	tensors = pipe_tensors(filename);
 	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
 	// For use with pipe tensors
 	if(tensors.size()>0){
 		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
 			std::vector<float> row = *it;
-			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 10 items long
-			//printf("%f %f %f %f %f %f %f %f",row[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6],temp[7]);
+			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 12 items long
 			// Create the shape and add it to the list
-			//vec3f center(row[9],row[10],row[11]);
 			vec3f center(row[9],row[10],row[11]);
 			optix::Matrix3x3 tensorpart;
 			tensorpart = optix::Matrix3x3::identity();
 			for (int i=0; i < 9; i++){
 				tensorpart[i] = row[i];
-				//printf("%f %f %f\n%f %f %f\n%f %f %f\n",row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]);
-				//std::cout << " ********* " << std::endl;
 			}
 			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
 
@@ -411,7 +410,8 @@ optix::Group createScene(const std::string& filename)
 			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
 		}
 	}
-
+  }
+  
 
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
