@@ -20,6 +20,9 @@
 // optix
 #include <optix.h>
 #include <optixu/optixpp.h>
+#include <optixu/optixu_matrix_namespace.h>
+//yaml (for parsing config file)
+#include <yaml-cpp/yaml.h>
 // std
 #define _USE_MATH_DEFINES 1
 #include <math.h>
@@ -32,9 +35,12 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <vector>
-#include <optixu/optixu_matrix_namespace.h>
+#include <limits>
+#include <stdexcept>
 
+enum class Algo { whitted, pathtracing };
 
 optix::Context g_context;
 
@@ -48,6 +54,7 @@ extern "C" const char embedded_miss_program[];
 extern "C" const char embedded_metal_programs[];
 extern "C" const char embedded_dielectric_programs[];
 extern "C" const char embedded_lambertian_programs[];
+extern "C" const char embedded_whitted_lambertian_programs[];
 
 union raw_float {
 	u_char buffer[4];
@@ -78,6 +85,23 @@ struct Lambertian : public Material {
     optix::Material mat = g_context->createMaterial();
     mat->setClosestHitProgram(0, g_context->createProgramFromPTXString
                               (embedded_lambertian_programs,
+                               "closest_hit"));
+    gi->setMaterial(/*ray type:*/0, mat);
+    gi["albedo"]->set3fv(&albedo.x);
+  }
+  const vec3f albedo;
+};
+
+/*! host side code for the "WhittedLambertian" material; the actual
+  sampling code is in the programs/whitted_lambertian.cu closest hit program */
+struct WhittedLambertian : public Material {
+  /*! constructor */
+  WhittedLambertian(const vec3f &albedo) : albedo(albedo) {}
+  /* create optix material, and assign mat and mat values to geom instance */
+  virtual void assignTo(optix::GeometryInstance gi) const override {
+    optix::Material mat = g_context->createMaterial();
+    mat->setClosestHitProgram(0, g_context->createProgramFromPTXString
+                              (embedded_whitted_lambertian_programs,
                                "closest_hit"));
     gi->setMaterial(/*ray type:*/0, mat);
     gi["albedo"]->set3fv(&albedo.x);
@@ -166,6 +190,10 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
     radius*upperLeft[6], radius*upperLeft[7], radius*upperLeft[8], center.z,
     0.0f,   0.0f,   0.0f,   1.0f                                 
   };                                                              
+
+  //printf("%f %f %f\n%f %f %f\n%f %f %f\n",sphereMatRaw[0],sphereMatRaw[1],sphereMatRaw[2],sphereMatRaw[4],sphereMatRaw[5],sphereMatRaw[6],sphereMatRaw[8],sphereMatRaw[9],sphereMatRaw[10]);
+  //printf("Center: %f %f %f\n", center.x, center.y, center.z);
+
   optix::Matrix4x4 matrixSphere(sphereMatRaw);   
   optix::Transform trSphere = g_context->createTransform();
   trSphere->setMatrix(false, matrixSphere.getData(),
@@ -175,7 +203,6 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
 
   return trSphere;
 }
-
 
 // ----------------------File-reading functions -----------------------------------------
 // All of these return a vector of vectors
@@ -321,10 +348,20 @@ std::vector<std::vector<float> > pipe_tensors(const std::string& filename) {
 	
 }
 
-optix::Group createScene(const std::string& filename)
+
+optix::Group createScene(const std::string& filename, const Algo algo, const float data_scale)
 { 
   //Pre-create one geometry instance per material. 
-  optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  //optix::GeometryInstance giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  optix::GeometryInstance giDiffuseSphere;
+  if( algo == Algo::pathtracing ){
+    giDiffuseSphere = createUnitSphere(Lambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  } else if ( algo == Algo::whitted ) {
+    giDiffuseSphere = createUnitSphere(WhittedLambertian(vec3f(0.5f, 0.5f, 0.5f)));
+  } else {
+    throw std::invalid_argument("Unsupported algorithm!");
+  }
+
   optix::GeometryInstance giMetalSphere = createUnitSphere(Metal(vec3f(0.7f, 0.6f, 0.5f), 0.0f));
   optix::GeometryInstance giGlassSphere = createUnitSphere(Dielectric(1.5f));
 
@@ -407,9 +444,12 @@ optix::Group createScene(const std::string& filename)
 			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
 
 				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
-			t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+			//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+			t_list.push_back(createSphereXform(center, symmetrized_tensor, data_scale, ggDiffuse));
 		}
 	}
+        
+
   }
   
 
@@ -501,12 +541,76 @@ void setMissProgram()
 
 int main(int argc, char **argv)
 {
-
-  if(argc != 2){
-    std::cout << "Usage: ./finalChapter_iterative <data_file>.csv" << std::endl;
+  if(argc != 3){ 
+    std::cout << "Usage: ./finalChapter_iterative <config_file>.yaml [whitted | pathtracing]" << std::endl;
+    std::cout << "(The third argument should be either 'whitted' or 'pathtracing'"<< std::endl;
     exit(1);
   }
 
+  //Initialize floating-point valuse to NaNs instead of leaving them
+  //uninitialized. Since NaN's propagate, this makes the program easier to
+  //debug if we are using an uninitialized value somewhere we shouldn't.
+  //const float nan = std::numeric_limits<float>::quiet_NaN();
+  //float fovy = nan; 
+  //vec3f cam_pos(NAN);
+  
+  std::string render_algo_str(argv[2]);
+  Algo render_algo;
+  if(render_algo_str.compare("whitted") == 0 ){
+    render_algo = Algo::whitted;
+  } else if ( render_algo_str.compare("pathtracing") == 0 ) {
+    render_algo = Algo::pathtracing;
+  } else {
+    std::cout << "Invalid rendering algorithm!" << std::endl;
+    exit(1);
+  }
+  //Todo: set enum based on wehther render_algo is "whitted" or "pathtracing"
+  //Later on, in CreateScene, choose between Lambertian or WhittedLambertian as the diffuse material
+  //depending on what the enum is.
+
+  std::string config_file_name = std::string(argv[1]);
+  size_t config_fname_len = config_file_name.length();
+  std::string ext(".yaml");
+  if( config_fname_len < ext.length() || config_file_name.compare(config_fname_len - ext.length(),ext.length(), ext) != 0 ){
+    std::cout << "Input must be a .yaml file!" << std::endl;
+    exit(1);
+  }
+
+  std::cout << "Loading config, in YAML format, at: " << config_file_name << std::endl;
+  YAML::Node config = YAML::LoadFile(config_file_name);
+  const float fovy = config["camera"]["fovy"].as<float>(); 
+  const float aperture = config["camera"]["aperture"].as<float>(); 
+  const float dist_to_focus = config["camera"]["dist_to_focus"].as<float>(); 
+  const float data_scale = config["data_scale"].as<float>();
+
+  YAML::Node cam_pos = config["camera"]["position"];
+  assert(cam_pos.IsSequence());
+  const vec3f lookfrom(cam_pos[0].as<float>(), cam_pos[1].as<float>(), cam_pos[2].as<float>());
+
+  YAML::Node lookat_pos = config["camera"]["lookat"];
+  assert(lookat_pos.IsSequence());
+  const vec3f lookat(lookat_pos[0].as<float>(), lookat_pos[1].as<float>(), lookat_pos[2].as<float>());
+
+  YAML::Node up_dir = config["camera"]["up"];
+  assert(up_dir.IsSequence());
+  const vec3f up(up_dir[0].as<float>(), up_dir[1].as<float>(), up_dir[2].as<float>());
+  
+  YAML::Node light_dir_node = config["light_dir"];
+  assert(light_dir_node.IsSequence());
+  vec3f light_dir(light_dir_node[0].as<float>(), light_dir_node[1].as<float>(), light_dir_node[2].as<float>());
+  light_dir = light_dir/light_dir.length(); //normalize
+
+  const std::string data_file = config["data_file"].as<std::string>();
+
+  std::cout << "Camera position: " << lookfrom.x << " " << lookfrom.y << " " << lookfrom.z << " " << std::endl;
+  std::cout << "Lookat position:" << lookat.x << " " << lookat.y << " " << lookat.z << " " << std::endl;
+  std::cout << "Up direction:" << up.x << " " << up.y << " " << up.z << " " << std::endl;
+  std::cout << "Light dir:" << light_dir.x << " " << light_dir.y << " " << light_dir.z << " " << std::endl;
+  std::cout << "Field of view (y), degrees: " << fovy << std::endl;
+  std::cout << "Aperture: " << aperture << std::endl;
+  std::cout << "Dist to focus: " << dist_to_focus << std::endl;
+  std::cout << "Data file: " << data_file << std::endl;
+  
   // before doing anything else: create a optix context
   g_context = optix::Context::create();
   g_context->setRayTypeCount(1);
@@ -524,16 +628,21 @@ int main(int argc, char **argv)
          //float vfov, float aspect, float aperture, float focus_dist
   // Position for tensor.csv
 
-  const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
-  const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
+  //const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
+  //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
   Camera camera(lookfrom,
                 lookat,
-                /* up */ vec3f(0.6437328837528422, -0.7215645820362587, -0.2548578590628296 ),//vec3f(0, 1, 0),
-                /* fovy, in degrees */ 30, //20.0,
+                /* up */ up, 
+                /* fovy, in degrees */ fovy, 
                 /* aspect */ float(Nx) / float(Ny),
-                /* aperture */ 0.01f, //0.01f
-                /* dist to focus: */ 1.0f);
+                /* aperture */ (render_algo == Algo::whitted) ? 0.0 : aperture,//aperture, 
+                /* dist to focus: */ dist_to_focus);
   camera.set();
+  if(render_algo == Algo::whitted){
+    std::cout << "DoF disabled because we are using Whitted-style raytracing. 'aperture' has no effect!" << std::endl;
+  }
+
+  g_context["light_dir"]->set3fv(&light_dir.x);
 
   // set the ray generation and miss shader program
   setRayGenProgram();
@@ -545,11 +654,17 @@ int main(int argc, char **argv)
 
   // create the world to render
   //optix::GeometryGroup world = createScene();
-  //"../dt-helix.raw";
-  optix::Group world = createScene(std::string(argv[1]));
+  //optix::Group world = createScene(std::string(argv[1]));
+  optix::Group world = createScene(data_file, render_algo, data_scale); //FIXME: This is a HACK!
   g_context["world"]->set(world);
 
-  const int numSamples = 128;
+  //const int numSamples = 128;
+  int numSamples;
+  if( render_algo == Algo::whitted ) {
+    numSamples = 1; 
+  } else {
+    numSamples = 128;
+  }
   g_context["numSamples"]->setInt(numSamples);
 
 #if 1

@@ -4,3 +4,4 @@ tags
 */tags
 .ccls-cache
 .ipynb_checkpoints/*
+compile_commands.json

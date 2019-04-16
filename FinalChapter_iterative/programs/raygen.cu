@@ -43,6 +43,8 @@ rtDeclareVariable(float3, camera_u, , );
 rtDeclareVariable(float3, camera_v, , );
 rtDeclareVariable(float, camera_lens_radius, , );
 
+rtDeclareVariable(float3, light_dir, , );
+
 struct Camera {
   static __device__ optix::Ray generateRay(float s, float t, DRand48 &rnd) 
   {
@@ -88,7 +90,11 @@ inline __device__ vec3f color(optix::Ray &ray, DRand48 &rnd)
     else if (prd.out.scatterEvent == rayGotCancelled)
       return vec3f(0.f);
 
-    else { // ray is still alive, and got properly bounced
+    else if (prd.out.scatterEvent == rayHitWhittedDiffuse ){
+      float dotProd = optix::clamp(dot(-light_dir, prd.out.normal),0.0f,1.0f);
+      return prd.out.attenuation * dotProd; 
+      /*return vec3f(0.5f) + 0.5f*prd.out.normal;*/ //render normals for debug
+    } else { // ray is still alive, and got properly bounced
       attenuation *= prd.out.attenuation;
       ray = optix::make_Ray(prd.out.scattered_origin.as_float3(),
                             prd.out.scattered_direction.as_float3(),

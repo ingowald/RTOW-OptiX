@@ -34,6 +34,9 @@ cuda_compile_and_embed(
 cuda_compile_and_embed( 
   embedded_lambertian_programs programs/lambertian.cu
   )
+cuda_compile_and_embed( 
+  embedded_whitted_lambertian_programs programs/whitted_lambertian.cu
+  )
 
 # this is doing the same using OptiX
 add_executable(finalChapter_iterative
@@ -45,6 +48,7 @@ add_executable(finalChapter_iterative
   ${embedded_raygen_program}
   ${embedded_sphere_programs}
   ${embedded_lambertian_programs}
+  ${embedded_whitted_lambertian_programs}
   ${embedded_miss_program}
   ${embedded_metal_programs}
   ${embedded_dielectric_programs}
@@ -52,5 +56,6 @@ add_executable(finalChapter_iterative
 
 target_link_libraries(finalChapter_iterative
   ${optix_LIBRARY}
+  yaml-cpp
   )
 
