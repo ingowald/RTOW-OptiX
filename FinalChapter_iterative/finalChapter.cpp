@@ -56,6 +56,11 @@ extern "C" const char embedded_dielectric_programs[];
 extern "C" const char embedded_lambertian_programs[];
 extern "C" const char embedded_whitted_lambertian_programs[];
 
+union raw_float {
+	u_char buffer[4];
+	float number;
+};
+
 float rnd()
 {
   // static std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -199,6 +204,46 @@ optix::Transform createSphereXform(const vec3f &center, const optix::Matrix3x3& 
   return trSphere;
 }
 
+// ----------------------File-reading function -----------------------------------------
+// Reads a tensor.csv file and returns the tensor data as a list
+// Each vector in the list of vectors has the data in the format Dxx,Dxy,Dxz,Dyx,Dyy,Dyz,Dzx,Dzy,Dzz,x,y,z
+std::vector<std::vector<float> > read_csv_tensors(const std::string& filename) {
+	std::vector<std::vector<float> > tensors;
+	
+  std::string line;
+  //std::ifstream csvfile("../tensor.csv");
+  std::ifstream csvfile(filename);
+  int count =0; // This is just to limit the amount of the file we read for testing
+  if(csvfile.is_open()){
+	  //while(csvfile.good()? 
+	  // while(getline(csvfile,line)){} // This line will allow us to read through the entire structure.
+	  while(getline(csvfile,line)){
+	  //while(count<5) {
+		  //getline(csvfile,line);
+		  //std::cout<<line<<'\n';
+		  if(count>0){
+			  std::vector<float> row;
+			  std::string substr;
+			  std::stringstream ss;
+			  ss<<line;
+			  while(ss.good()){
+				  getline(ss,substr,',');
+				  //double temp = ::atof(substr.c_str());
+				  float temp = ::strtof(substr.c_str(),NULL);
+				  row.push_back((float)temp);
+			  }
+			  //float x,y,z;
+			  tensors.push_back(row);
+		  }
+		  count++;
+	  }
+	  csvfile.close();
+  }
+  return tensors;
+	
+}
+
+
 optix::Group createScene(const std::string& filename, const Algo algo, const float data_scale)
 { 
   //Pre-create one geometry instance per material. 
@@ -240,77 +285,40 @@ optix::Group createScene(const std::string& filename, const Algo algo, const flo
   
   // This is the plane the original balls rested on
   //t_list.push_back(createSphereXform(vec3f(0.f, -1000.0f, -1.f), 1000.f, ggDiffuse)); 
-
-  // --------------Uplift this code later to main()-------
-  std::string line;
-  //std::ifstream csvfile("../tensor.csv");
-  std::ifstream csvfile(filename);
-  int count =0; // This is just to limit the amount of the file we read for testing
-  if(csvfile.is_open()){
-	  while(getline(csvfile,line)){
-		  //std::cout<<line<<'\n';
-		  if(count>0){
-			  std::vector<float> row;
-			  std::string substr;
-			  std::stringstream ss;
-			  ss<<line;
-			  while(ss.good()){
-				  getline(ss,substr,',');
-				  double temp = ::atof(substr.c_str());
-				  row.push_back((float)temp);
-			  }
-			  float x,y,z;
-			  x = row[9];
-			  y = row[10];
-			  z = row[11];
-			  vec3f center(row[9],row[10],row[11]);
-
-        //assuming row major order
-        optix::Matrix3x3 tensor;
-        tensor = optix::Matrix3x3::identity();
-
-        for (int i=0; i < 9; i++){
-          tensor[i] = row[i];
-          //printf("%f %f %f\n%f %f %f\n%f %f %f\n",row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]);
-          //std::cout << " ********* " << std::endl;
-        }
-
-        optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensor + tensor.transpose());
-
-				//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
-        t_list.push_back(createSphereXform(center, symmetrized_tensor, data_scale, ggDiffuse));
-		  }
-		  count++;
-	  }
-	  csvfile.close();
+  std::vector<std::vector<float> > tensors;
+  std::string filename1 = "../dt-helix.csv";
+  if(filename.compare(filename1)==0){
+	printf("Reading the spiral helix now"); 
   }
-  //------------------------------------------------------
+
+	  // Get the pipe tensors
+	// Data is in the order Dxx, Dxy, Dxz, Dyx, Dyy, Dyz, Dzx, Dzy, Dzz, x, y, z
+	tensors = read_csv_tensors(filename);
+	//std::cout<<"Tensor vector length for the pipe="<<tensors.size();
+	// For use with pipe tensors
+	if(tensors.size()>0){
+		for(std::vector<std::vector<float> >::iterator it = tensors.begin(); it != tensors.end(); it++) {
+			std::vector<float> row = *it;
+			//std::cout << ' ' << row.size()<<std::endl; // This particular one is 12 items long
+			// Create the shape and add it to the list
+			vec3f center(row[9],row[10],row[11]);
+			optix::Matrix3x3 tensorpart;
+			tensorpart = optix::Matrix3x3::identity();
+			for (int i=0; i < 9; i++){
+				tensorpart[i] = row[i];
+			}
+			optix::Matrix3x3 symmetrized_tensor = 0.5f*(tensorpart + tensorpart.transpose());
+
+			//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.001f, ggDiffuse));
+			//t_list.push_back(createSphereXform(center, symmetrized_tensor, 0.2f * 0.001592912349527057f, ggDiffuse));
+			t_list.push_back(createSphereXform(center, symmetrized_tensor, data_scale, ggDiffuse));
+		}
+	}
+        
+
   
-	/*
-  for (int a = -11; a < 11; a++) {
-    for (int b = -11; b < 11; b++) {
-      float choose_mat = rnd();
-      vec3f center(a + rnd(), 0.2f, b + rnd());
-      if (choose_mat < 0.8f) {
-        t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
-      }
-      else if (choose_mat < 0.95f) {
-        t_list.push_back(createSphereXform(center, 0.2f, ggMetal));
-        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
-      }
-      else {
-        t_list.push_back(createSphereXform(center, 0.2f, ggGlass));
-        //t_list.push_back(createSphereXform(center, 0.2f, ggDiffuse));
-      }
-    }
-  }
+  
 
-  t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggGlass));
-  //t_list.push_back(createSphereXform(vec3f(0.f, 1.f, 0.f), 1.f, ggDiffuse));
-  t_list.push_back(createSphereXform(vec3f(-4.f, 1.f, 0.f), 1.f, ggDiffuse));
-  t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggMetal));
-  //t_list.push_back(createSphereXform(vec3f(4.f, 1.f, 0.f), 1.f, ggDiffuse));
-*/
   //At the end, instead of instantiating a GeometryGroup d_world, instantiate a group t_world.
   //Add children to t_world in the same way that we added children to d_world.
   optix::Group t_world = g_context->createGroup();
@@ -482,6 +490,9 @@ int main(int argc, char **argv)
   //const vec3f lookfrom(13, 2, 3);
   //const vec3f lookfrom(0, 0, -10);
   //const vec3f lookat(0, 0, 0);
+    // Camera params : const vec3f &lookfrom, const vec3f &lookat, const vec3f &vup, 
+         //float vfov, float aspect, float aperture, float focus_dist
+  // Position for tensor.csv
 
   //const vec3f lookfrom(1.1487395261676667,-0.324271485442182,1.0268790810616117);
   //const vec3f lookat(-42.92895065482805,-32.67156564843721,-18.723725570334892);
