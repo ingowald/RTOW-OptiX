@@ -1,12 +1,11 @@
 camera:
   fovy: 30.0
-  position: [1.1487395261676667,-0.324271485442182,1.0268790810616117]
-  lookat: [-42.92895065482805,-32.67156564843721,-18.723725570334892]
-  up: [0.6437328837528422, -0.7215645820362587, -0.2548578590628296]
-  aperture: 0.01
-  dist_to_focus: 1.0 
-data_file: "../dt-helix.csv" #Path relative to executable
-#data_file: "../processed_tensor.csv" 
-data_scale: 0.00031858246990541144 #to match my ParaView setup
-#data_scale: 1.0
-light_dir: [-0.7582404650616285, -0.5564499244157213, -0.33975708787435704]
+  position: [-65.9574592657243, -8.21046136967615, -10.517543454907116]
+  lookat: [51.13292088508601, 29.513657891715596, 31.098266502981975]
+  up: [0.2509214607677066, 0.2521724967708928, -0.9345841066477294]
+  aperture: 0.0
+  dist_to_focus: 4.0 
+#data_file: "../single_tensor.csv" #Path relative to executable
+data_file: "../dt-helixExclusion.csv" #Path relative to executable
+data_scale: 1.0 # Is this it? CameraParallelScale=33.84723543631
+light_dir: [0.0, 0.0, 1.0]
