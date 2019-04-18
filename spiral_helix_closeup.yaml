@@ -1,0 +1,11 @@
+camera:
+  fovy: 30.0
+  position: [17.613089675109265, 1.6094769425918616, 33.81978419236308]
+  lookat: [22.721974817923467, 101.78441276229347, -48.66672053705484]
+  up: [-0.4534669924277175, -0.5526500632689534, -0.699246447504299]
+  aperture: 0.0
+  dist_to_focus: 4.0 
+#data_file: "../single_tensor.csv" #Path relative to executable
+data_file: "../dt-helixExclusion.csv" #Path relative to executable
+data_scale: 1.0 # Is this it? CameraParallelScale=33.84723543631
+light_dir: [0.0, 0.0, 1.0]
