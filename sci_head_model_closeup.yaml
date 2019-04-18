@@ -1,0 +1,12 @@
+camera:
+  fovy: 30.0
+  position: [82.40189009964462, 66.16582218610817, 32.35207685831808]
+  lookat: [-55.783204961310375, 151.44089782262975, 265.24425582092005]
+  up: [0.8063320171172765, -0.20677149223551222, 0.5541427868070499]
+  aperture: 0.01
+  dist_to_focus: 1.0 
+data_file: "../tensor.csv" #Change the path to fit the SCI head model when we have it
+#data_file: "../processed_tensor.csv" 
+data_scale: 0.00031858246990541144 #to match my ParaView setup
+#data_scale: 1.0  #CameraParallelScale = 73.98187159576241
+light_dir: [-0.7582404650616285, -0.5564499244157213, -0.33975708787435704]
