@@ -1,0 +1,11 @@
+camera:
+  fovy: 30.0
+  position: [-341.21410127525354, 205.87851060068232, 93.19765833339046]
+  lookat: [203.43813051744922, 57.69091952320847, 77.25511687968076]
+  up: [0.08834036644913904, 0.42177046727826706, -0.9023888588560389]
+  aperture: 0.0
+  dist_to_focus: 4.0 
+#data_file: "../single_tensor.csv" #Path relative to executable
+data_file: "../gk2-rcc-maskRes.csv" #Path relative to executable
+data_scale: 1.0 # CameraParallelScale = 147.1729764961958
+light_dir: [0.0, 0.0, 1.0]
