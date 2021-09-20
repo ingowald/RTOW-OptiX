@@ -1,5 +1,19 @@
 # RTOW-OptiX (my OptiX version of Pete's 'Ray Tracing in One Weekend' series)
 
+## "Deprecation Notice"
+
+Dear reader/user - this project was once written as a sample code for
+OptiX 5; however, the OptiX API has since underdone major and significant
+changes that make this code no longer work with any publicly available or supported
+form of OptiX. For a more modern version of this sample I would encourage
+you to have a look at my "OWL" project (https://github.com/owl-project/owl),
+which aims at providing some  more OptiX-5/OptiX-6 like "wrappers"
+around today's much more low-level OptiX-7 API. In particular, there
+are actually multiple different versions of this particular "RTOW" Sample
+in OWL, including both a direct port of this sample (in 
+https://github.com/owl-project/owl/tree/master/samples/cmdline/s05-rtow)
+as well as ones with extra boxes, with multi-GPU support, etc. 
+
 ## Overview
 
 This project aims at providing a Optix Version of the 'final chapter'
@@ -119,4 +133,5 @@ http://ingowald.blog).
 
 ## ChangeLog
 
+- 11/20/21 Added deprecation notice to point to newer version in OWL (https://github.com/owl-project/owl)
 - 11/16/18 Initial Release
